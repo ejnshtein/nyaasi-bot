@@ -1,12 +1,12 @@
-const cheerio = require('cheerio'),
-    origin = 'https://nyaa.si'
+const cheerio = require('cheerio')
+const origin = 'https://nyaa.si'
 
 function parseTorrentsList(html) {
-    let table = cheerio.load(html)('body > div.container > div.table-responsive > table > tbody')
+    const table = cheerio.load(html)('body > div.container > div.table-responsive > table > tbody')
     let files = []
     table.children('tr').each((i, el) => {
-        let element = cheerio.load(el)
-        let torrent = {}
+        const element = cheerio.load(el)
+        const torrent = {}
         torrent.category = {
             label: element('td:nth-child(1) a').attr('title'),
             code: element('td:nth-child(1) a').attr('href').match(/c=(\S+)/i)[1]
@@ -34,21 +34,19 @@ function parseTorrentsList(html) {
         torrent.leechers = element('td:nth-child(7)').html()
         torrent.nbDownload = element('td:nth-child(8)').html()
 
-        //files[i] = cheerio.load(el).html()
         files.push(torrent)
     })
+    
     return files
 }
 
 function parseViewPage(html) {
-    let view = cheerio.load(html)
-    let torrent = {}
-    // 
+    const view = cheerio.load(html)
+    const torrent = {}
     torrent.title = view('body > div.container > div:nth-child(1) > div.panel-heading > h3').text()
     torrent.fileSize = view('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(4) > div:nth-child(2)').html()
     torrent.category = []
     view('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(1) > div:nth-child(2)').children('a').each((i,el)=>{
-        //console.log(el)
         torrent.category.push({
             title: el.children[0].data,
             code: el.attribs['href'].match(/c=(\S+)/i)[1]
@@ -82,7 +80,7 @@ function parseViewPage(html) {
     torrent.seeders = view('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(2) > div:nth-child(4) > span').html()
     torrent.leechers = view('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(3) > div:nth-child(4) > span').html()
     torrent.completed = view('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(4) > div:nth-child(4)').html()
-    //console.log(anime)
+
     return torrent
 }
 

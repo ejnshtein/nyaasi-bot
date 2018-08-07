@@ -1,17 +1,15 @@
-const Telegraf = require('telegraf'),
-    util = require('util'),
-    config = require('./config.json'),
-    bot = new Telegraf(config.bot.token, {
-        username: config.bot.username
-    }),
-    nyaasi = require('./nyaasi'),
-    Entities = require('html-entities').AllHtmlEntities,
-    entities = new Entities(),
-    nedb = require('./database')
-bot.start(({
-    reply
-}) => reply('I\'m nyaa.si website bot and i can help you to find some content from there.\nJust use command /search or /search <text to search> and i\'ll found it on nyaa.si'))
-let buttons = {
+const Telegraf = require('telegraf')
+const util = require('util')
+const config = require('./config.json')
+const bot = new Telegraf(config.bot.token, {
+    username: config.bot.username
+})
+const nyaasi = require('./nyaasi')
+const Entities = require('html-entities').AllHtmlEntities
+const entities = new Entities()
+const nedb = require('./database')
+
+const buttons = {
     offset: {
         plus: (plus = 10) => `⬇️ Offset +${plus}`,
         minus: (minus = 10) => `⬆️ Offset -${minus}`
@@ -27,21 +25,21 @@ let buttons = {
     }
 }
 
+bot.start((ctx) => ctx.reply('I\'m nyaa.si website bot and i can help you to find some content from there.\nJust use command /search or /search <text to search> and i\'ll found it on nyaa.si'))
+
 bot.use(nedb.logger)
 
-bot.command('/count', async (ctx) => {
+bot.command('count', async (ctx) => {
     if (ctx.local.admin) { // optional
-        let chatCount = await nedb.chats.count()
-        let usersCount = await nedb.users.count()
+        const chatCount = await nedb.chats.count()
+        const usersCount = await nedb.users.count()
         ctx.reply(`I'm working in ${chatCount} chat(s)!\nAlso for ${usersCount} user(s)!`)
     }
 })
 
-bot.command('/about', (ctx) => {
-    ctx.reply('I\'m <a href="https://nyaa.si">nyaa.si</a> website bot.\nFor now, I can search for torrents on <a href="https://nyaa.si">nyaa.si</a> (＾◡＾)っ.\nMore features will arrive soon! ( ͡~ ͜ʖ ͡°)\n\nI\'m still in beta, so please be patient! ( ﾉ ﾟｰﾟ)ﾉ', {
-        parse_mode: 'HTML'
-    })
-})
+bot.command('about', (ctx) => ctx.reply('I\'m <a href="https://nyaa.si">nyaa.si</a> website bot.\nFor now, I can search for torrents on <a href="https://nyaa.si">nyaa.si</a> (＾◡＾)っ.\nMore features will arrive soon! ( ͡~ ͜ʖ ͡°)\n\nI\'m still in beta, so please be patient! ( ﾉ ﾟｰﾟ)ﾉ', {
+    parse_mode: 'HTML'
+}))
 
 bot.hears(/\/search ([\s\S]*)/i, (ctx, next) => {
     if (ctx.match && ctx.match[1]) {
@@ -80,23 +78,23 @@ bot.hears(/\/search ([\s\S]*)/i, (ctx, next) => {
     }
 })
 
-bot.command(['/index','/search'], (ctx) => {
+bot.command(['index', 'search'], (ctx) => {
     generateMessageKeyboard('', {
             empty: true,
-            history: `navigate:q=f;p=1;of=0;e=true;`
+            history: 'navigate:q=f;p=1;of=0;e=true;'
         })
         .then(keyboard => {
             keyboard.unshift([{
                 text: buttons.page.next(2),
-                callback_data: `navigate:q=f;p=2;of=0;e=true;`
+                callback_data: 'navigate:q=f;p=2;of=0;e=true;'
             }])
             keyboard.unshift([{
                 text: buttons.offset.plus(10),
-                callback_data: `navigate:q=f;p=1;of=10;e=true;`
+                callback_data: 'navigate:q=f;p=1;of=10;e=true;'
             }])
             keyboard.unshift([{
                 text: buttons.page.refresh,
-                callback_data: `navigate:q=f;p=1;of=0;e=true;`
+                callback_data: 'navigate:q=f;p=1;of=0;e=true;'
             }])
             ctx.reply(`<a href="https://nyaa.si/?p=1">nyaa.si/p=1</a>\n\nPage: 1\nOffset: 0\n\n<b>Updated: ${new Date().getFullYear()}.${p(new Date().getMonth()+1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}</b>`, {
                 reply_markup: {
@@ -116,7 +114,6 @@ bot.command(['/index','/search'], (ctx) => {
 
 // callback_data: `navigate:q=key word;p=2;of=0;e=false`
 bot.action(/^navigate:q=([\s\S]*);p=(\S+);of=(\S+?);e=(\S+);/i, (ctx) => {
-    //util.log(ctx.match)
     generateMessageKeyboard(ctx.match[4] == 'true' ? '' : ctx.match[1], {
             page: ctx.match[2],
             offset: Number.parseInt(ctx.match[3]),
@@ -124,7 +121,6 @@ bot.action(/^navigate:q=([\s\S]*);p=(\S+);of=(\S+?);e=(\S+);/i, (ctx) => {
             history: ctx.match[0]
         })
         .then(keyboard => {
-            //util.log(keyboard)
             if (Number.parseInt(ctx.match[3]) >= 10) {
                 keyboard.unshift([{
                     text: buttons.offset.minus(10),
@@ -158,7 +154,7 @@ bot.action(/^navigate:q=([\s\S]*);p=(\S+);of=(\S+?);e=(\S+);/i, (ctx) => {
                 callback_data: `navigate:q=${ctx.match[1]};p=${ctx.match[2]};of=${ctx.match[3]};e=${ctx.match[4]};`
             }])
             let searchUrl = `https://nyaa.si/?p=${ctx.match[2]}${ctx.match[4] == 'true' ? '':`&q=${ctx.match[1]}`}`
-            ctx.editMessageText(`<a href="${searchUrl}">${searchUrl}</a>\n\n${ctx.match[4] ? "" :`Search keyword: ${ctx.match[1]}\n`}Page: ${ctx.match[2]}\nOffset: ${ctx.match[3]}\n\nUpdated ${new Date().getFullYear()}.${p(new Date().getMonth()+1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}`, {
+            ctx.editMessageText(`<a href="${searchUrl}">${searchUrl}</a>\n\n${ctx.match[4] ? '' :`Search keyword: ${ctx.match[1]}\n`}Page: ${ctx.match[2]}\nOffset: ${ctx.match[3]}\n\nUpdated ${new Date().getFullYear()}.${p(new Date().getMonth()+1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}`, {
                 reply_markup: {
                     inline_keyboard: keyboard
                 },
@@ -175,9 +171,8 @@ bot.action(/^navigate:q=([\s\S]*);p=(\S+);of=(\S+?);e=(\S+);/i, (ctx) => {
 })
 
 bot.action(/^view:id=(\S+?);([\s\S]*)/i, (ctx) => {
-    //util.log(ctx.match)
     nyaasi.getView('/view/' + ctx.match[1])
-        .then((response) => { // https://nyaa.si/?c=1_4
+        .then((response) => {
             let messageText = `\n${response.title}\n`
             let timestamp = new Date(Number.parseInt(response.timestamp) * 1000)
             messageText += `<a href="https://nyaa.si/view/${ctx.match[1]}">Open on nyaa.si</a>\n\n`
@@ -209,7 +204,6 @@ bot.action(/^view:id=(\S+?);([\s\S]*)/i, (ctx) => {
                 text: buttons.page.refresh,
                 callback_data: ctx.match[0]
             }])
-            //console.log(ctx.match[2])
             keyboard.push([{
                 text: buttons.back,
                 callback_data: ctx.match[2]
@@ -229,15 +223,13 @@ bot.action(/^view:id=(\S+?);([\s\S]*)/i, (ctx) => {
         })
 })
 
-bot.action(/download:(\S+);/, (ctx) => {
-    ctx.replyWithDocument({
-        url: `https://nyaa.si/download/${ctx.match[1]}.torrent`,
-        filename: ctx.match[1] + '.torrent'
-    })
-})
+bot.action(/download:(\S+);/, (ctx) => ctx.replyWithDocument({
+    url: `https://nyaa.si/download/${ctx.match[1]}.torrent`,
+    filename: ctx.match[1] + '.torrent'
+}))
 
 /**
- * @param {String} [path] path 
+ * @param {String} [path='/'] path 
  * @param {String} q search key
  * @param {String} p search page
  */
@@ -250,14 +242,13 @@ function p(data) {
 }
 
 function generateMessageKeyboard(key, params) {
-    let opt = {
+    const opt = {
         page: '1',
         offset: 0
     }
     for (const key in params) {
         opt[key] = params[key]
     }
-    //util.log(key,opt)
     return new Promise((res, rej) => {
         if (opt.empty == 'true') {
             nyaasi.getPage(opt.page === '1' ? '/' : `?p=${opt.page}`)
@@ -268,10 +259,8 @@ function generateMessageKeyboard(key, params) {
                 })
                 .catch(rej)
         } else {
-            //util.log(key,opt.page)
             nyaasi.getPage(`?p=${opt.page}&q=${key}`)
                 .then(response => {
-                    //util.log(response)
                     opt.replaced = '/view/'
                     let keyboard = generateButtons(response, opt)
                     res(keyboard)
@@ -282,7 +271,6 @@ function generateMessageKeyboard(key, params) {
 }
 
 /**
- * 
  * @param {Object[]} buttons 
  * @param {Object} opt 
  * @param {Number} opt.offset
@@ -311,13 +299,9 @@ function generateButtons(buttons, opt) {
             }
         })
         keyboard.push(line)
-    } else {
-        keyboard = []
     }
     return keyboard
 }
-bot.catch((err) => {
-    util.log(err)
-})
+bot.catch((err) => util.log(err))
 bot.startPolling()
 util.log('Bot started')

@@ -1,6 +1,5 @@
-const Datastore = require('nedb'),
-    util = require('util')
-let nedb = {}
+const Datastore = require('nedb')
+const nedb = {}
 nedb.users = new Datastore({
     filename: './database/db/users.db',
     autoload: true
@@ -35,7 +34,7 @@ module.exports = class {
     }
     update(query, update, options = {}) {
         return new Promise((res, rej) => {
-            let params = {}
+            const params = {}
             for (const key in options) {
                 params[key] = options[key]
             }
@@ -50,7 +49,7 @@ module.exports = class {
      */
     remove(query, options = {}) {
         return new Promise((res, rej) => {
-            let params = {}
+            const params = {}
             for (const key in options) {
                 params[key] = options[key]
             }
