@@ -1,0 +1,22 @@
+{
+  "name": "nyaasi-bot",
+  "version": "0.0.1",
+  "description": "nyaa.si telegram bot",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "nyaasi",
+    "nyaa.si"
+  ],
+  "author": "ejnshtein",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "cheerio": "^1.0.0-rc.2",
+    "html-entities": "^1.2.1",
+    "nedb": "^1.8.0",
+    "telegraf": "^3.22.1"
+  }
+}
