@@ -59,7 +59,7 @@ bot.hears(/\/search ([\s\S]*)/i, (ctx, next) => {
                     text: buttons.page.refresh,
                     callback_data: `navigate:q=${ctx.match[1]};p=1;of=0;e=false;`
                 }])
-                return ctx.reply(`<a href="https://nyaa.si?p=1&q=${ctx.match[1]}">nyaa.si?p=1&q=${ctx.match[1]}</a>\n\nPage: 1\nOffset: 0\n\nUpdated ${new Date().getFullYear()}.${p(new Date().getMonth()+1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}`, {
+                ctx.reply(`<a href="https://nyaa.si?p=1&q=${ctx.match[1]}">nyaa.si?p=1&q=${ctx.match[1]}</a>\n\nPage: 1\nOffset: 0\n\nUpdated ${new Date().getFullYear()}.${p(new Date().getMonth()+1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}`, {
                     reply_markup: {
                         inline_keyboard: keyboard
                     },
@@ -96,7 +96,7 @@ bot.command(['index', 'search'], (ctx) => {
                 text: buttons.page.refresh,
                 callback_data: 'navigate:q=f;p=1;of=0;e=true;'
             }])
-            ctx.reply(`<a href="https://nyaa.si/?p=1">nyaa.si/p=1</a>\n\nPage: 1\nOffset: 0\n\n<b>Updated: ${new Date().getFullYear()}.${p(new Date().getMonth()+1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}</b>`, {
+            ctx.reply(`<a href="https://nyaa.si/?p=1">nyaa.si/p=1</a>\n\nPage: 1\nOffset: 0\n\n<b>🔁 Updated: ${new Date().getFullYear()}.${p(new Date().getMonth()+1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}</b>`, {
                 reply_markup: {
                     inline_keyboard: keyboard
                 },
@@ -111,9 +111,10 @@ bot.command(['index', 'search'], (ctx) => {
             })
         })
 })
-
+// q=search key word;p=page;of=offset;e=empty request?;
 // callback_data: `navigate:q=key word;p=2;of=0;e=false`
 bot.action(/^navigate:q=([\s\S]*);p=(\S+);of=(\S+?);e=(\S+);/i, (ctx) => {
+    ctx.answerCbQuery('Working...')
     generateMessageKeyboard(ctx.match[4] == 'true' ? '' : ctx.match[1], {
             page: ctx.match[2],
             offset: Number.parseInt(ctx.match[3]),
@@ -154,7 +155,7 @@ bot.action(/^navigate:q=([\s\S]*);p=(\S+);of=(\S+?);e=(\S+);/i, (ctx) => {
                 callback_data: `navigate:q=${ctx.match[1]};p=${ctx.match[2]};of=${ctx.match[3]};e=${ctx.match[4]};`
             }])
             let searchUrl = `https://nyaa.si/?p=${ctx.match[2]}${ctx.match[4] == 'true' ? '':`&q=${ctx.match[1]}`}`
-            ctx.editMessageText(`<a href="${searchUrl}">${searchUrl}</a>\n\n${ctx.match[4] ? '' :`Search keyword: ${ctx.match[1]}\n`}Page: ${ctx.match[2]}\nOffset: ${ctx.match[3]}\n\nUpdated ${new Date().getFullYear()}.${p(new Date().getMonth()+1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}`, {
+            ctx.editMessageText(`<a href="${searchUrl}">${searchUrl}</a>\n\n${ctx.match[4] ? '' :`Search keyword: ${ctx.match[1]}\n`}Page: ${ctx.match[2]}\nOffset: ${ctx.match[3]}\n\n<b>🔁 Updated ${new Date().getFullYear()}.${p(new Date().getMonth()+1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}</b>`, {
                 reply_markup: {
                     inline_keyboard: keyboard
                 },
@@ -171,30 +172,31 @@ bot.action(/^navigate:q=([\s\S]*);p=(\S+);of=(\S+?);e=(\S+);/i, (ctx) => {
 })
 
 bot.action(/^view:id=(\S+?);([\s\S]*)/i, (ctx) => {
-    nyaasi.getView('/view/' + ctx.match[1])
+    ctx.answerCbQuery('Working...')
+    nyaasi.getView(ctx.match[1])
         .then((response) => {
             let messageText = `\n${response.title}\n`
             let timestamp = new Date(Number.parseInt(response.timestamp) * 1000)
-            messageText += `<a href="https://nyaa.si/view/${ctx.match[1]}">Open on nyaa.si</a>\n\n`
+            messageText += `🌐 <a href="https://nyaa.si/view/${ctx.match[1]}">Open on nyaa.si</a>\n\n`
             if (response.entry) {
                 messageText += `Torrent entry: <a href="https://nyaa.si/help#torrent-colors">${response.entry}</a> \n`
             }
-            messageText += 'Category:  '
+            messageText += '💬 Category:  '
             let category = []
             response.category.forEach(el => {
                 category.push(`<a href="https://nyaa.si/?c=${el.code}">${el.title}</a>`)
             })
             messageText += category.join(' - ') + '\n'
-            messageText += `Submitter: ${typeof response.submitter == 'string' ? response.submitter : `<a href="${response.submitter.link}">${response.submitter.name}</a>`}\n`
-            messageText += `Info: ${response.info}\n`
-            messageText += `File size: ${response.fileSize}\n\n`
-            messageText += `Date: ${timestamp.getFullYear()}-${p(timestamp.getMonth()+1)}-${p(timestamp.getDate())} ${p(timestamp.getHours())}:${p(timestamp.getMinutes())}\n`
-            messageText += `Seeders: <b>${response.seeders}</b>\n`
-            messageText += `Leechers: <b>${response.leechers}</b>\n`
-            messageText += `Completed: <b>${response.completed}</b>\n`
+            messageText += `👨 Submitter: ${typeof response.submitter == 'string' ? response.submitter : `<a href="${response.submitter.link}">${response.submitter.name}</a>`}\n`
+            messageText += `ℹ️ Info: ${response.info}\n`
+            messageText += `💾 File size: ${response.fileSize}\n\n`
+            messageText += `📅 Date: ${timestamp.getFullYear()}-${p(timestamp.getMonth()+1)}-${p(timestamp.getDate())} ${p(timestamp.getHours())}:${p(timestamp.getMinutes())}\n`
+            messageText += `⬆️ Seeders: <b>${response.seeders}</b>\n`
+            messageText += `⬇️ Leechers: <b>${response.leechers}</b>\n`
+            messageText += `☑️ Completed: <b>${response.completed}</b>\n`
             messageText += `Info hash: <code>${response.infoHash}</code>\n\n`
             messageText += `<a href="${response.links.torrent}">Download Torrent</a>\n\n`
-            messageText += `<b>Updated: ${new Date().getFullYear()}.${p(new Date().getMonth()+1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}</b>`
+            messageText += `🔁 <b>Updated: ${new Date().getFullYear()}.${p(new Date().getMonth()+1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}</b>`
             let keyboard = []
             keyboard.push([{
                 text: buttons.torrent.download,
@@ -283,6 +285,7 @@ function generateButtons(buttons, opt) {
     let offsetted = buttons.slice(opt.offset, opt.offset + 10)
     if (offsetted.length > 0) {
         offsetted.forEach(el => {
+            //console.log(el)
             //console.log(opt.history)
             if (line.length < 1) {
                 line.push({

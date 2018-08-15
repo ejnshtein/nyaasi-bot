@@ -3,7 +3,7 @@ const chatCollection = new Collection('chats')
 const userCollection = new Collection('users')
 const adminCollection = new Collection('admins')
 module.exports = {
-    async logger(ctx, next) {
+    async logger (ctx, next) {
         const message = ctx.message || ctx.update.callback_query.message
         const local = {}
         const chat = await chatCollection.findOne({ 'id': message.chat.id })

@@ -5,7 +5,7 @@ const origin = 'https://nyaa.si'
 module.exports = {
     getPage(url) {
         return new Promise((res, rej) => {
-            axios(origin + url, {
+            axios.get(origin + url, {
                     responseType: 'document'
                 })
                 .then((response) => res(scrap.parseTorrentsList(response.data)))
@@ -14,7 +14,7 @@ module.exports = {
     },
     getView(url) {
         return new Promise((res, rej) => {
-            axios(origin + url, {
+            axios.get(`${origin}/view/${url}`, {
                     responseType: 'document'
                 })
                 .then((response) => res(scrap.parseViewPage(response.data)))
