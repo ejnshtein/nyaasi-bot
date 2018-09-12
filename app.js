@@ -39,6 +39,21 @@ bot.command('count', async (ctx) => {
         ctx.reply(`I'm working in ${chatCount} chat(s)!\nAlso for ${usersCount} user(s)!`)
     }
 })
+bot.command('source', (ctx) => {
+    ctx.reply('My source code at <a href="https://github.com/ejnshtein/nyaasi-bot">Github</a>',{
+        parse_mode: 'HTML',
+        reply_markup: {
+            inline_keyboard: [
+                [
+                    {
+                        text: 'Bot source code',
+                        url: 'https://github.com/ejnshtein/nyaasi-bot'
+                    }
+                ]
+            ]
+        }
+    })
+})
 
 bot.command('about', (ctx) => ctx.reply('I\'m <a href="https://nyaa.si">nyaa.si</a> website bot.\nFor now, I can search for torrents on <a href="https://nyaa.si">nyaa.si</a> (＾◡＾)っ.\nMore features will arrive soon! ( ͡~ ͜ʖ ͡°)\n\nI\'m still in beta, so please be patient! ( ﾉ ﾟｰﾟ)ﾉ', {
     parse_mode: 'HTML'
