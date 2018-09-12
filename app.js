@@ -1,13 +1,16 @@
-const Telegraf = require('telegraf')
 const util = require('util')
+const Telegraf = require('telegraf')
+
 const config = require('./config.json')
-const bot = new Telegraf(config.bot.token, {
-    username: config.bot.username
-})
 const nyaasi = require('./nyaasi')
-const Entities = require('html-entities').AllHtmlEntities
-const entities = new Entities()
 const nedb = require('./database')
+const middlewares = require('./middlewares')
+const generators = require('./generators')
+const bot = new Telegraf(config.bot.token)
+
+bot.telegram.getMe().then(botInfo => {
+    bot.options.username = botInfo.username
+})
 
 const buttons = {
     offset: {
@@ -27,7 +30,7 @@ const buttons = {
 
 bot.start((ctx) => ctx.reply('I\'m nyaa.si website bot and i can help you to find some content from there.\nJust use command /search or /search <text to search> and i\'ll found it on nyaa.si'))
 
-bot.use(nedb.logger)
+bot.use(nedb.logger())
 
 bot.command('count', async (ctx) => {
     if (ctx.local.admin) { // optional
@@ -41,9 +44,9 @@ bot.command('about', (ctx) => ctx.reply('I\'m <a href="https://nyaa.si">nyaa.si<
     parse_mode: 'HTML'
 }))
 
-bot.hears(/\/search ([\s\S]*)/i, (ctx, next) => {
+bot.hears(/\/search ([\s\S]*)/i, middlewares.onlyPrivate, (ctx, next) => {
     if (ctx.match && ctx.match[1]) {
-        generateMessageKeyboard(ctx.match[1], {
+        generators.messageKeyboard(ctx.match[1], {
                 history: `navigate:q=${ctx.match[1]};p=1;of=0;e=false;`
             })
             .then(keyboard => {
@@ -78,8 +81,8 @@ bot.hears(/\/search ([\s\S]*)/i, (ctx, next) => {
     }
 })
 
-bot.command(['index', 'search'], (ctx) => {
-    generateMessageKeyboard('', {
+bot.command(['index', 'search'], middlewares.onlyPrivate, (ctx) => {
+    generators.messageKeyboard('', {
             empty: true,
             history: 'navigate:q=f;p=1;of=0;e=true;'
         })
@@ -115,7 +118,7 @@ bot.command(['index', 'search'], (ctx) => {
 // callback_data: `navigate:q=key word;p=2;of=0;e=false`
 bot.action(/^navigate:q=([\s\S]*);p=(\S+);of=(\S+?);e=(\S+);/i, (ctx) => {
     ctx.answerCbQuery('Working...')
-    generateMessageKeyboard(ctx.match[4] == 'true' ? '' : ctx.match[1], {
+    generators.messageKeyboard(ctx.match[4] == 'true' ? '' : ctx.match[1], {
             page: ctx.match[2],
             offset: Number.parseInt(ctx.match[3]),
             empty: ctx.match[4] == 'true',
@@ -243,68 +246,6 @@ function p(data) {
     return data.toString().length > 1 ? data : `0${data}`
 }
 
-function generateMessageKeyboard(key, params) {
-    const opt = {
-        page: '1',
-        offset: 0
-    }
-    for (const key in params) {
-        opt[key] = params[key]
-    }
-    return new Promise((res, rej) => {
-        if (opt.empty == 'true') {
-            nyaasi.getPage(opt.page === '1' ? '/' : `?p=${opt.page}`)
-                .then(response => {
-                    opt.replaced = '/view/'
-                    let keyboard = generateButtons(response, opt)
-                    res(keyboard)
-                })
-                .catch(rej)
-        } else {
-            nyaasi.getPage(`?p=${opt.page}&q=${key}`)
-                .then(response => {
-                    opt.replaced = '/view/'
-                    let keyboard = generateButtons(response, opt)
-                    res(keyboard)
-                })
-                .catch(rej)
-        }
-    })
-}
-
-/**
- * @param {Object[]} buttons 
- * @param {Object} opt 
- * @param {Number} opt.offset
- * @param {String} opt.replaced
- * @param {String} opt.history
- */
-function generateButtons(buttons, opt) {
-    let keyboard = []
-    let line = []
-    let offsetted = buttons.slice(opt.offset, opt.offset + 10)
-    if (offsetted.length > 0) {
-        offsetted.forEach(el => {
-            //console.log(el)
-            //console.log(opt.history)
-            if (line.length < 1) {
-                line.push({
-                    text: el.entry + entities.decode(el.name),
-                    callback_data: opt.history ? `view:id=${el.links.page.replace(opt.replaced,'')};` + opt.history : `view:id=${el.links.page.replace(opt.replaced,'')};`
-                })
-            } else {
-                keyboard.push(line)
-                line = []
-                line.push({
-                    text: el.entry + entities.decode(el.name),
-                    callback_data: opt.history ? `view:id=${el.links.page.replace(opt.replaced,'')};` + opt.history : `view:id=${el.links.page.replace(opt.replaced,'')};`
-                })
-            }
-        })
-        keyboard.push(line)
-    }
-    return keyboard
-}
 bot.catch((err) => util.log(err))
 bot.startPolling()
 util.log('Bot started')
