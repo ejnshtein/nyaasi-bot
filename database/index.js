@@ -4,7 +4,7 @@ const userCollection = new Collection('users')
 const adminCollection = new Collection('admins')
 module.exports = {
     logger () {
-        return async (ctx, next) {
+        return async (ctx, next) => {
             const message = ctx.message || ctx.update.callback_query.message
             const local = {}
             const chat = await chatCollection.findOne({ 'id': message.chat.id })
