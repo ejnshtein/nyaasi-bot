@@ -144,6 +144,7 @@ bot.command(['index', 'search'], middlewares.onlyPrivate, (ctx) => {
 })
 
 bot.action(/^p=(\S+):o=(\S+)$/ig, ctx => {
+    ctx.answerCbQuery('')
     const entities = ctx.callbackQuery.message.entities.filter(el => el.type === 'text_link')
     const entity = entities[entities.length - 1]
     const location = new URL(entity.url)
@@ -207,6 +208,7 @@ bot.action(/^p=(\S+):o=(\S+)$/ig, ctx => {
 })
 
 bot.action(/^v=(\S+?):(\S+)$/ig, ctx => {
+    ctx.answerCbQuery('')
     const entities = ctx.callbackQuery.message.entities.filter(el => el.type === 'text_link')
     const entity = entities[entities.length - 1]
     const location = new URL(entity.url)
