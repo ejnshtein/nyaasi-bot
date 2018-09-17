@@ -3,7 +3,7 @@ const origin = 'https://nyaa.si'
 
 function parseTorrentsList(html) {
     const table = cheerio.load(html)('body > div.container > div.table-responsive > table > tbody')
-    let files = []
+    const files = []
     table.children('tr').each((i, el) => {
         const element = cheerio.load(el)
         const torrent = {}

@@ -1,43 +1,31 @@
-const Collection = require('./nedb')
-const chatCollection = new Collection('chats')
-const userCollection = new Collection('users')
-const adminCollection = new Collection('admins')
+const nedb = require('./nedb')
+const users = nedb.collection('users')
+const admins = nedb.collection('admins')
+
 module.exports = {
+    nedb,
     logger () {
-        return async (ctx, next) => {
-            const message = ctx.message || ctx.update.callback_query.message
-            const local = {}
-            const chat = await chatCollection.findOne({ 'id': message.chat.id })
-            if (!chat) {
-                const newChat = message.chat
-                newChat.active = { date: new Date().toJSON() }
-                local.chat = await chatCollection.insert(newChat)
-            } else {
-                local.chat = chat
-                await chatCollection.update({ _id: chat._id }, { $set: { active: { date: new Date().toJSON() } } })
-            }
-            if (message.chat.type !== 'private') {
-                const user = await userCollection.findOne({ 'id': message.from.id })
-                if (!user) {
-                    const newUser = message.from
-                    newUser.active = { date: new Date().toJSON() }
-                    local.user = await userCollection.insert(newUser)
+        return async ({ updateType, chat, from }, next) => {
+            if ((updateType === 'message' && chat.type === 'private') || updateType === 'callback_query') {
+                const user = await users.findOne({ id: from.id })
+                if (user) {
+                    await users.update({ id: from.id }, { $set: { activeTime: Date.now() }})
                 } else {
-                    local.user = user
-                    await userCollection.update({ _id: user._id }, { $set: { active: { date: new Date().toJSON() } } })
+                    await users.insert({ id: from.id, activeTime: Date.now() })
                 }
             }
-            if (message.chat.type == 'private'){
-                const admin = await adminCollection.findOne({ id: message.chat.id })
-                if (admin){
-                    local.admin = admin
-                }
-            }
-            ctx.local = local
-            next(ctx)
+            next()
         }
     },
-    chats: chatCollection,
-    users: userCollection,
-    admins: adminCollection
+    middleware () {
+        return async (ctx, next) => {
+            const admin = await admins.findOne({ id: ctx.from.id })
+            if (admin) {
+                ctx.local = {
+                    admin
+                }
+            }
+            next()
+        }
+    }
 }

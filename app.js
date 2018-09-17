@@ -3,7 +3,7 @@ const Telegraf = require('telegraf')
 
 const config = require('./config.json')
 const nyaasi = require('./nyaasi')
-const nedb = require('./database')
+const database = require('./database')
 const middlewares = require('./middlewares')
 const generators = require('./generators')
 const bot = new Telegraf(config.bot.token)
@@ -30,13 +30,13 @@ const buttons = {
 
 bot.start((ctx) => ctx.reply('I\'m nyaa.si website bot and i can help you to find some content from there.\nJust use command /search or /search <text to search> and i\'ll found it on nyaa.si'))
 
-bot.use(nedb.logger())
+bot.use(database.logger())
+bot.use(database.middleware())
 
 bot.command('count', async (ctx) => {
     if (ctx.local.admin) { // optional
-        const chatCount = await nedb.chats.count()
-        const usersCount = await nedb.users.count()
-        ctx.reply(`I'm working in ${chatCount} chat(s)!\nAlso for ${usersCount} user(s)!`)
+        const usersCount = await database.nedb.collection('users').count()
+        ctx.reply(`I'm working for ${usersCount} user(s)!`)
     }
 })
 bot.command('source', (ctx) => {
@@ -56,7 +56,7 @@ bot.command('source', (ctx) => {
     })
 })
 
-bot.command('about', (ctx) => ctx.reply('I\'m <a href="https://nyaa.si">nyaa.si</a> website bot.\nFor now, I can search for torrents on <a href="https://nyaa.si">nyaa.si</a> (＾◡＾)っ.\nMore features will arrive soon! ( ͡~ ͜ʖ ͡°)\n\nI\'m still in beta, so please be patient! ( ﾉ ﾟｰﾟ)ﾉ\n\nMy source code at <a href="https://github.com/ejnshtein/nyaasi-bot">github</a>', {
+bot.command('about', ({ reply }) => reply('I\'m <a href="https://nyaa.si">nyaa.si</a> website bot.\nFor now, I can search for torrents on <a href="https://nyaa.si">nyaa.si</a> (＾◡＾)っ.\nMore features will arrive soon! ( ͡~ ͜ʖ ͡°)\n\nI\'m still in beta, so please be patient! ( ﾉ ﾟｰﾟ)ﾉ\n\nMy source code at <a href="https://github.com/ejnshtein/nyaasi-bot">github</a>', {
     parse_mode: 'HTML'
 }))
 
