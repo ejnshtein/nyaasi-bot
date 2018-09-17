@@ -272,47 +272,48 @@ bot.action(/^v=(\S+?):(\S+)$/ig, ctx => {
 // callback_data: `navigate:q=key word;p=2;of=0;e=false`
 bot.action(/^navigate:q=([\s\S]*);p=(\S+);of=(\S+?);e=(\S+);/i, (ctx) => {
     ctx.answerCbQuery('Working...')
+    const query = ctx.match[4] == 'true' ? '' : ctx.match[1]
     generators.messageKeyboard(ctx.match[4] === 'true' ? '' : ctx.match[1], {
             page: ctx.match[2],
             offset: Number.parseInt(ctx.match[3]),
-            empty: ctx.match[4] == 'true',
-            history: ctx.match[0]
+            empty: ctx.match[4] === 'true',
+            history: `p=${ctx.match[2]}:o=${ctx.match[3]}`
         })
         .then(keyboard => {
             if (Number.parseInt(ctx.match[3]) >= 10) {
                 keyboard.unshift([{
                     text: buttons.offset.minus(10),
-                    callback_data: `navigate:q=${ctx.match[1]};p=${ctx.match[2]};of=${Number.parseInt(ctx.match[3]) - 10};e=${ctx.match[4]};`
+                    callback_data: `p=${ctx.match[2]}:o=${Number.parseInt(ctx.match[3]) - 10}`
                 }, {
                     text: buttons.offset.plus(10),
-                    callback_data: `navigate:q=${ctx.match[1]};p=${ctx.match[2]};of=${Number.parseInt(ctx.match[3]) + 10};e=${ctx.match[4]};`
+                    callback_data: `p=${ctx.match[2]}:o=${Number.parseInt(ctx.match[3]) + 10}`
                 }])
             } else {
                 keyboard.unshift([{
                     text: buttons.offset.plus(10),
-                    callback_data: `navigate:q=${ctx.match[1]};p=${ctx.match[2]};of=${Number.parseInt(ctx.match[3]) + 10};e=${ctx.match[4]};`
+                    callback_data: `p=${ctx.match[2]}:o=${Number.parseInt(ctx.match[3]) + 10}`
                 }])
             }
             if (Number.parseInt(ctx.match[2]) >= 2) {
                 keyboard.unshift([{
                     text: buttons.page.prev(Number.parseInt(ctx.match[2]) - 1),
-                    callback_data: `navigate:q=${ctx.match[1]};p=${Number.parseInt(ctx.match[2]) - 1};of=0;e=${ctx.match[4]};`
+                    callback_data: `p=${Number.parseInt(ctx.match[2]) - 1}:o=0`
                 }, {
                     text: buttons.page.next(Number.parseInt(ctx.match[2]) + 1),
-                    callback_data: `navigate:q=${ctx.match[1]};p=${Number.parseInt(ctx.match[2]) + 1};of=0;e=${ctx.match[4]};`
+                    callback_data: `p=${Number.parseInt(ctx.match[2]) + 1}:o=0`
                 }])
             } else {
                 keyboard.unshift([{
                     text: buttons.page.next(Number.parseInt(ctx.match[2]) + 1),
-                    callback_data: `navigate:q=${ctx.match[1]};p=2;of=0;e=${ctx.match[4]};`
+                    callback_data: 'p=2:o=0'
                 }])
             }
             keyboard.unshift([{
                 text: buttons.page.refresh,
-                callback_data: `navigate:q=${ctx.match[1]};p=${ctx.match[2]};of=${ctx.match[3]};e=${ctx.match[4]};`
+                callback_data: `p=${ctx.match[2]}:o=${ctx.match[3]}`
             }])
-            const searchUrl = `https://nyaa.si/?p=${ctx.match[2]}${ctx.match[4] == 'true' ? '' : `&q=${ctx.match[1]}`}`
-            ctx.editMessageText(`<a href="${searchUrl}">${searchUrl}</a>\n\n${ctx.match[4] ? '' : `Search keyword: ${ctx.match[1]}\n`}Page: ${ctx.match[2]}\nOffset: ${ctx.match[3]}\n\n<b>🔁 Updated ${new Date().getFullYear()}.${p(new Date().getMonth() + 1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}</b>`, {
+            const searchUrl = `https://nyaa.si/?p=${ctx.match[1]}${query ? `&q=${query}` : ''}`
+            ctx.editMessageText(`<a href="${searchUrl}">${searchUrl}</a>\n\n${query ? `Search keyword: ${query}\n` : '' }Page: ${ctx.match[1]}\nOffset: ${ctx.match[2]}\n\n<b>🔁 Updated ${new Date().getFullYear()}.${p(new Date().getMonth() + 1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}</b><a href="${searchUrl}">&#160;</a>`, {
                 reply_markup: {
                     inline_keyboard: keyboard
                 },
