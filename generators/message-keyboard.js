@@ -1,28 +1,21 @@
 const nyaasi = require('../nyaasi')
 const Entities = require('html-entities').AllHtmlEntities
 const entities = new Entities()
-module.exports = (key, params = {}) => {
-    const opt = Object.assign({},{ page: '1', offset: 0 }, params)
+module.exports = (query, params = {}) => {
+    const opt = Object.assign({}, {
+        page: '1',
+        offset: 0
+    }, params)
     return new Promise((resolve, reject) => {
-        if (opt.empty == 'true') {
-            nyaasi.getPage(opt.page === '1' ? '/' : `?p=${opt.page}`)
-                .then(response => {
-                    opt.replaced = '/view/'
-                    let keyboard = generateButtons(response, opt)
-                    resolve(keyboard)
-                })
-                .catch(reject)
-        } else {
-            nyaasi.getPage(`?p=${opt.page}&q=${key}`)
-                .then(response => {
-                    opt.replaced = '/view/'
-                    let keyboard = generateButtons(response, opt)
-                    resolve(keyboard)
-                })
-                .catch(reject)
-        }
+        nyaasi.getPage(query ? `?p=${opt.page}&q=${query}` : opt.page === '1' ? '/' : `?p=${opt.page}`)
+            .then(response => {
+                resolve(generateButtons(response, opt))
+            })
+            .catch(reject)
+        
     })
 }
+
 /**
  * @param {Object[]} buttons 
  * @param {Object} opt 
@@ -33,22 +26,23 @@ module.exports = (key, params = {}) => {
 function generateButtons(buttons, opt) {
     const keyboard = []
     let line = []
-    let offsetted = buttons.slice(opt.offset, opt.offset + 10)
+    const view = '/view/'
+    const offsetted = buttons.slice(opt.offset, opt.offset + 10)
     if (offsetted.length > 0) {
         offsetted.forEach(el => {
-            //console.log(el)
-            //console.log(opt.history)
+            const text = el.entry + entities.decode(el.name)
+            const callback_data = `v=${el.links.page.replace(view, '')}:${opt.history}`
             if (line.length < 1) {
-                line.push({
-                    text: el.entry + entities.decode(el.name),
-                    callback_data: opt.history ? `view:id=${el.links.page.replace(opt.replaced,'')};` + opt.history : `view:id=${el.links.page.replace(opt.replaced,'')};`
+                line.push({ // ^v=(\S+):p=(\S+):o=(\S+)
+                    text: text,
+                    callback_data: callback_data
                 })
             } else {
                 keyboard.push(line)
                 line = []
                 line.push({
-                    text: el.entry + entities.decode(el.name),
-                    callback_data: opt.history ? `view:id=${el.links.page.replace(opt.replaced,'')};` + opt.history : `view:id=${el.links.page.replace(opt.replaced,'')};`
+                    text: text,
+                    callback_data: callback_data
                 })
             }
         })

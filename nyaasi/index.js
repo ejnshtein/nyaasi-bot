@@ -12,9 +12,9 @@ module.exports = {
                 .catch(rej)
         })
     },
-    getView(url) {
+    getView(id) {
         return new Promise((res, rej) => {
-            axios.get(`${origin}/view/${url}`, {
+            axios.get(`${origin}/view/${id}`, {
                     responseType: 'document'
                 })
                 .then((response) => res(scrap.parseViewPage(response.data)))
