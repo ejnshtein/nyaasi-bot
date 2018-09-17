@@ -116,12 +116,12 @@ bot.command(['index', 'search'], middlewares.onlyPrivate, (ctx) => {
         })
         .then(keyboard => {
             keyboard.unshift([{
-                text: buttons.page.next(2),
-                callback_data: 'p=2:o=0'
-            }])
-            keyboard.unshift([{
                 text: buttons.offset.plus(10),
                 callback_data: 'p=1:o=10'
+            }])
+            keyboard.unshift([{
+                text: buttons.page.next(2),
+                callback_data: 'p=2:o=0'
             }])
             keyboard.unshift([{
                 text: buttons.page.refresh,
