@@ -127,7 +127,7 @@ bot.command(['index', 'search'], middlewares.onlyPrivate, (ctx) => {
                 text: buttons.page.refresh,
                 callback_data: 'p=1:o=0'
             }])
-            ctx.reply(`<a href="https://nyaa.si/?p=1">nyaa.si/p=1</a>\n\nPage: 1\nOffset: 0\n\n<b>🔁 Updated: ${new Date().getFullYear()}.${p(new Date().getMonth() + 1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}</b><a href="https://nyaa.si?p=1">&#160;</a>`, {
+            ctx.reply(`<a href="https://nyaa.si/?p=1">https://nyaa.si/?p=1</a>\n\nPage: 1\nOffset: 0\n\n<b>🔁 Updated: ${new Date().getFullYear()}.${p(new Date().getMonth() + 1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}</b><a href="https://nyaa.si?p=1">&#160;</a>`, {
                 reply_markup: {
                     inline_keyboard: keyboard
                 },
