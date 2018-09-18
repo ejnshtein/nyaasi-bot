@@ -13,6 +13,6 @@ Other commands and features is still in development.
 
 ## Inline mode
 
-Type in any chat **@nyaasi_bot** and it will work!*
+Type in any chat **@nyaasi_bot** and it will work!
 
-*Telegram inline results limit is 50, be carefull.
+**NOTE:** inline results limit - **50**.
