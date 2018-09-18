@@ -15,15 +15,29 @@ module.exports = (query, params = {}) => {
         
     })
 }
+module.exports.inlineMode = (query, params = {}) => {
+    const opt = Object.assign({}, {
+        page: '1',
+        offset: 0
+    }, params)
+    return new Promise((resolve, reject) => {
+        nyaasi.getPage(query ? `?p=${opt.page}&q=${query}` : opt.page === '1' ? '/' : `?p=${opt.page}`)
+            .then(result => {
+                resolve(result.slice(opt.offset, opt.offset + 25))
+            })
+            .catch(reject)
+        
+    })
+}
 
 /**
  * @param {Object[]} buttons 
  * @param {Object} opt 
  * @param {Number} opt.offset
- * @param {String} opt.replaced
  * @param {String} opt.history
  */
 function generateButtons(buttons, opt) {
+    // console.log(buttons)
     const keyboard = []
     let line = []
     const view = '/view/'

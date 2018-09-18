@@ -7,10 +7,13 @@ const nyaasi = require('./nyaasi')
 const database = require('./database')
 const middlewares = require('./middlewares')
 const generators = require('./generators')
+const Entities = require('html-entities').AllHtmlEntities
+const entities = new Entities()
 const bot = new Telegraf(config.bot.token)
-
+let botId = 0
 bot.telegram.getMe().then(botInfo => {
     bot.options.username = botInfo.username
+    botId = botInfo.id
 })
 
 const buttons = {
@@ -25,11 +28,24 @@ const buttons = {
     },
     back: '⬅️ Back',
     torrent: {
-        download: '⬇️ Download torrent file here'
+        download: '⬇️ Download torrent file'
     }
 }
 
-bot.start((ctx) => ctx.reply('I\'m nyaa.si website bot and i can help you to find some content from there.\nJust use command /search or /search <text to search> and i\'ll found it on nyaa.si'))
+bot.start((ctx) => {
+    if (/\/start (\S*)/i.test(ctx.message.text)) {
+        const buffer = ctx.message.text.match(/\/start (\S*)/i)[1]
+        const text = Buffer.from(buffer, 'base64').toString('ascii')
+        if (/download:[0-9]+/i.test(text)) {
+            const fileId = text.match(/download:([0-9]+)/i)[1]
+            return ctx.replyWithDocument({
+                url: `https://nyaa.si/download/${fileId}.torrent`,
+                filename: `${fileId}.torrent`
+            })
+        } 
+    }
+    ctx.reply('I\'m nyaa.si website bot and i can help you to find some content from there.\nJust use command /search or /search <text to search> and i\'ll found it on nyaa.si')
+})
 
 bot.use(database.logger())
 bot.use(database.middleware())
@@ -385,10 +401,96 @@ bot.action(/^view:id=(\S+?);([\s\S]*)/i, (ctx) => {
         })
 })
 
-bot.action(/download:(\S+);/, (ctx) => ctx.replyWithDocument({
-    url: `https://nyaa.si/download/${ctx.match[1]}.torrent`,
-    filename: ctx.match[1] + '.torrent'
-}))
+bot.action(/download:(\S+);/, (ctx) => {
+    ctx.answerCbQuery('')
+    ctx.replyWithDocument({
+        url: `https://nyaa.si/download/${ctx.match[1]}.torrent`,
+        filename: ctx.match[1] + '.torrent'
+    })
+})
+bot.action(/d=(\S+)/, (ctx) => {
+    ctx.answerCbQuery('')
+    ctx.replyWithDocument({
+        url: `https://nyaa.si/download/${ctx.match[1]}.torrent`,
+        filename: ctx.match[1] + '.torrent'
+    })
+})
+
+bot.on('inline_query', ctx => {
+    const query = ctx.inlineQuery.query
+    let page = 1
+    let offset = 0
+    if (ctx.inlineQuery.offset) {
+        page = Number.parseInt(ctx.inlineQuery.offset.match(/^p=(\S+):o=(\S+)$/i)[1])
+        offset = Number.parseInt(ctx.inlineQuery.offset.match(/^p=(\S+):o=(\S+)$/i)[2])
+    }
+    const searchUrl = `https://nyaa.si/?p=${page}&q=${query}`
+    generators.messageKeyboard.inlineMode(query, {
+            page: page,
+            offset: offset,
+        }).then(response => {
+            const results = response.map(el => {
+                el.timestamp = new Date(el.timestamp * 1000)
+                let messageText = `\n${entities.decode(el.name)}\n`
+                messageText += `🌐 <a href="https://nyaa.si${el.links.page}">Open on nyaa.si</a>\n\n`
+                if (el.entry) {
+                    messageText += `Torrent entry: <a href="https://nyaa.si/help#torrent-colors">${el.entry}</a> \n`
+                }
+                messageText += `💬 Category: <a href="https://nyaa.si/?c=${el.category.code}">${el.category.label}</a>\n`
+                messageText += `💾 File size: ${el.fileSize}\n\n`
+                messageText += `📅 Date: ${el.timestamp.getFullYear()}-${p(el.timestamp.getMonth() + 1)}-${p(el.timestamp.getDate())} ${p(el.timestamp.getHours())}:${p(el.timestamp.getMinutes())}\n`
+                messageText += `⬆️ Seeders: <b>${el.seeders}</b>\n`
+                messageText += `⬇️ Leechers: <b>${el.leechers}</b>\n`
+                messageText += `☑️ Completed: <b>${el.nbDownload}</b>\n\n`
+                messageText += `<a href="https://nyaa.si${el.links.file}">Download Torrent</a>\n\n`
+                messageText += `<b>🔁 Updated ${new Date().getFullYear()}.${p(new Date().getMonth() + 1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}</b><a href="${searchUrl}">&#160;</a>`
+                const result = {
+                    type: 'article',
+                    id: el.links.page.replace('/view/', ''),
+                    title: entities.decode(el.name),
+                    input_message_content: {
+                        message_text: messageText,
+                        disable_web_page_preview: false,
+                        parse_mode: 'HTML'
+                    },
+                    reply_markup: {
+                        inline_keyboard: [
+                            [
+                                {
+                                    text: buttons.torrent.download,
+                                    url: `https://t.me/${bot.options.username}?start=${Buffer.from(`download:${el.links.page.replace('/view/', '')}`).toString('base64')}`
+                                }
+                            ]
+                        ]
+                    }
+                }
+                return result
+            })
+            if (offset >= 75) {
+                 page += 1
+                 offset = 0
+            } else {
+                offset += 25
+            }
+            ctx.answerInlineQuery(results, {
+                next_offset: `p=${page}:o=${offset}`
+            })
+            .catch(util.log)
+            // ctx.reply(`<a href="https://nyaa.si?p=1&q=${ctx.match[1]}}">&#160;</a><a href="https://nyaa.si?p=1&q=${ctx.match[1]}">nyaa.si?p=1&q=${ctx.match[1]}</a>\n\nPage: 1\nOffset: 0\n\nUpdated ${new Date().getFullYear()}.${p(new Date().getMonth() + 1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}`, {
+            //     reply_markup: {
+            //         inline_keyboard: keyboard
+            //     },
+            //     disable_web_page_preview: true,
+            //     parse_mode: 'HTML'
+            // })
+        })
+        .catch((err) => {
+            util.log(err)
+            ctx.reply(errMessage('/', page, query), {
+                parse_mode: 'HTML'
+            })
+        })
+})
 
 /**
  * @param {String} [path='/'] path 

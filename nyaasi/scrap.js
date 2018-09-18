@@ -11,7 +11,7 @@ function parseTorrentsList(html) {
             label: element('td:nth-child(1) a').attr('title'),
             code: element('td:nth-child(1) a').attr('href').match(/c=(\S+)/i)[1]
         }
-        switch(el.attribs['class']){
+        switch (el.attribs['class']) {
             case 'danger':
                 torrent.entry = '[Remake] '
                 break
@@ -29,7 +29,7 @@ function parseTorrentsList(html) {
             magnet: element('td:nth-child(3) a:last-of-type').attr('href')
         }
         torrent.fileSize = element('td:nth-child(4)').html()
-        torrent.timestamp = element('td:nth-child(5)').attr('data-timestamp')
+        torrent.timestamp = Number.parseInt(element('td:nth-child(5)').attr('data-timestamp'))
         torrent.seeders = element('td:nth-child(6)').html()
         torrent.leechers = element('td:nth-child(7)').html()
         torrent.nbDownload = element('td:nth-child(8)').html()
