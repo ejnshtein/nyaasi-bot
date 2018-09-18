@@ -15,4 +15,4 @@ Other commands and features is still in development.
 
 Type in any chat **@nyaasi_bot** and it will work!*
 
-*Telegram inline results is 50, be carefull.
+*Telegram inline results limit is 50, be carefull.
