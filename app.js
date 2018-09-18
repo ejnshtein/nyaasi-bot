@@ -448,6 +448,8 @@ bot.on('inline_query', ctx => {
                     type: 'article',
                     id: el.links.page.replace('/view/', ''),
                     title: entities.decode(el.name),
+                    url: `https://nyaa.si${el.links.page}`,
+                    description: `${el.fileSize} · ⬆️ ${el.seeders} · ⬇️ ${el.leechers} · ☑️ ${el.nbDownload}`,
                     input_message_content: {
                         message_text: messageText,
                         disable_web_page_preview: false,
@@ -473,7 +475,8 @@ bot.on('inline_query', ctx => {
                 offset += 25
             }
             ctx.answerInlineQuery(results, {
-                next_offset: `p=${page}:o=${offset}`
+                next_offset: `p=${page}:o=${offset}`,
+                cache_time: 5
             })
             .catch(util.log)
             // ctx.reply(`<a href="https://nyaa.si?p=1&q=${ctx.match[1]}}">&#160;</a><a href="https://nyaa.si?p=1&q=${ctx.match[1]}">nyaa.si?p=1&q=${ctx.match[1]}</a>\n\nPage: 1\nOffset: 0\n\nUpdated ${new Date().getFullYear()}.${p(new Date().getMonth() + 1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}`, {
