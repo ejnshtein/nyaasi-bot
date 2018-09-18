@@ -13,6 +13,7 @@ Other commands and features is still in development.
 
 ## Inline mode
 
+[<img src="https://i.imgur.com/5VVUAv4.png" height="400">](https://t.me/nyaasi_bot)[<img src="https://i.imgur.com/S3nwDbf.png" height="400">](https://t.me/nyaasi_bot)  
 Type in any chat **@nyaasi_bot** and it will work!
 
 **NOTE:** inline results limit - **50**.
