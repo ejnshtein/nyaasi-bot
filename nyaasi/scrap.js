@@ -49,10 +49,10 @@ function parseViewPage(html) {
     view('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(1) > div:nth-child(2)').children('a').each((i,el)=>{
         torrent.category.push({
             title: el.children[0].data,
-            code: el.attribs['href'].match(/c=(\S+)/i)[1]
+            code: el.attribs["href"].match(/c=(\S+)/i)[1]
         })
     })
-    switch(view('body > div.container > div:nth-child(1)').attr('class').match(/panel-(\S+)/i)[1]){
+    switch (view('body > div.container > div:nth-child(1)').attr('class').match(/panel-(\S+)/i)[1]){
         case 'danger':
             torrent.entry = '[Remake] '
             break
@@ -69,7 +69,7 @@ function parseViewPage(html) {
     }
     torrent.timestamp = view('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(1) > div:nth-child(4)').attr('data-timestamp')
     torrent.submitter = {}
-    if (view('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(2) > div:nth-child(2) > a').html()){
+    if (view('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(2) > div:nth-child(2) > a').html()) {
         torrent.submitter.name = view('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(2) > div:nth-child(2) > a').html(),
         torrent.submitter.link = origin + view('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(2) > div:nth-child(2) > a').attr('href')
     } else {

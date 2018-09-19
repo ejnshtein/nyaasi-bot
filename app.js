@@ -10,10 +10,8 @@ const generators = require('./generators')
 const Entities = require('html-entities').AllHtmlEntities
 const entities = new Entities()
 const bot = new Telegraf(config.bot.token)
-let botId = 0
 bot.telegram.getMe().then(botInfo => {
     bot.options.username = botInfo.username
-    botId = botInfo.id
 })
 
 const buttons = {
@@ -28,7 +26,8 @@ const buttons = {
     },
     back: '⬅️ Back',
     torrent: {
-        download: '⬇️ Download'
+        download: '⬇️ Download',
+        magnet: 'Magnet'
     }
 }
 
@@ -131,20 +130,13 @@ bot.hears(/\/search ([\s\S]*)/i, middlewares.onlyPrivate, (ctx, next) => {
                 }])
                 
                 const searchUrl = `https://nyaa.si/?p=1&q=${ctx.match[1]}`
-                ctx.reply(`<a href="${searchUrl}">&#160;</a><a href="${searchUrl}">${searchUrl}</a>\n\nSearch keyword: ${ctx.match[1]}\nPage: 1\nOffset: 0\n\n<b>🔁 Updated ${new Date().getFullYear()}.${p(new Date().getMonth() + 1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}</b>`, {
+                ctx.reply(`<a href="${searchUrl}">${searchUrl}</a>\n\nSearch keyword: ${ctx.match[1]}\nPage: 1\nOffset: 0\n\n<b>🔁 Updated ${new Date().getFullYear()}.${p(new Date().getMonth() + 1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}</b><a href="${searchUrl}">&#160;</a>`, {
                     reply_markup: {
                         inline_keyboard: keyboard
                     },
                     disable_web_page_preview: true,
                     parse_mode: 'HTML'
                 })
-                // ctx.reply(`<a href="https://nyaa.si?p=1&q=${ctx.match[1]}}">&#160;</a><a href="https://nyaa.si?p=1&q=${ctx.match[1]}">nyaa.si?p=1&q=${ctx.match[1]}</a>\n\nPage: 1\nOffset: 0\n\nUpdated ${new Date().getFullYear()}.${p(new Date().getMonth() + 1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}`, {
-                //     reply_markup: {
-                //         inline_keyboard: keyboard
-                //     },
-                //     disable_web_page_preview: true,
-                //     parse_mode: 'HTML'
-                // })
             })
             .catch((err) => {
                 util.log(err)
@@ -159,7 +151,6 @@ bot.hears(/\/search ([\s\S]*)/i, middlewares.onlyPrivate, (ctx, next) => {
 
 bot.command(['index', 'search'], middlewares.onlyPrivate, (ctx) => {
     generators.messageKeyboard('', {
-            empty: true,
             history: 'p=1:o=0'
         })
         .then(keyboard => {
@@ -271,6 +262,9 @@ bot.action(/^v=(\S+?):(\S+)$/ig, ctx => {
             keyboard.push([{
                 text: buttons.torrent.download,
                 callback_data: `d=${ctx.match[1]}`
+            }, {
+                text: buttons.torrent.magnet,
+                callback_data: `magnet=${ctx.match[1]}`
             }])
             keyboard.push([{
                 text: buttons.page.refresh,
@@ -300,7 +294,7 @@ bot.action(/^v=(\S+?):(\S+)$/ig, ctx => {
 // callback_data: `navigate:q=key word;p=2;of=0;e=false`
 bot.action(/^navigate:q=([\s\S]*);p=(\S+);of=(\S+?);e=(\S+);/i, (ctx) => {
     ctx.answerCbQuery('Working...')
-    const query = ctx.match[4] == 'true' ? '' : ctx.match[1]
+    const query = ctx.match[4] === 'true' ? '' : ctx.match[1]
     generators.messageKeyboard(ctx.match[4] === 'true' ? '' : ctx.match[1], {
             page: ctx.match[2],
             offset: Number.parseInt(ctx.match[3]),
@@ -426,10 +420,27 @@ bot.action(/d=(\S+)/, (ctx) => {
     })
 })
 
+bot.action(/^magnet=([0-9]+)/i, ctx => {
+    ctx.answerCbQuery('')
+    nyaasi.getView(ctx.match[1])
+        .then(response => {
+            ctx.reply(`<code>${response.links.magnet}</code>`, {
+                parse_mode: 'HTML',
+                disable_web_page_preview: true
+            })
+        })
+        .catch((err) => {
+            util.log(err)
+            ctx.reply(errMessage('/view/' + ctx.match[1]), {
+                parse_mode: 'HTML'
+            })
+        })
+})
+
 bot.on('inline_query', ctx => {
     const query = ctx.inlineQuery.query
-    let page = 1
-    let offset = 0
+    const page = 1
+    const offset = 0
     const searchUrl = `https://nyaa.si/?p=${page}&q=${query}`
     generators.messageKeyboard.inlineMode(query, {
             page: page,
