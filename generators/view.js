@@ -11,7 +11,7 @@ module.exports = (id, history) => {
             let messageText = `\n${entities.decode(response.title)}\n`
             const date = new Date()
             const timestamp = new Date(Number.parseInt(response.timestamp) * 1000)
-            messageText += `🌐 <a href="https://nyaa.si/view/${id}">Open on nyaa.si</a>\n\n`
+            messageText += `<a href="https://nyaa.si/view/${id}">🌐 Open on nyaa.si</a>\n\n`
             if (response.entry) {
                 messageText += `Torrent entry: <a href="https://nyaa.si/help#torrent-colors">${response.entry}</a> \n`
             }
