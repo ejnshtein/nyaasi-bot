@@ -1,5 +1,6 @@
 const util = require('util')
 const Telegraf = require('telegraf')
+const Composer = Telegraf.Composer
 // const rateLimit = require('telegraf-ratelimit') // maybe in future...
 const { URL } = require('url')
 
@@ -63,6 +64,9 @@ bot.start((ctx) => {
                     keyboard.push([{
                         text: buttons.torrent.download,
                         callback_data: `d=${id}`
+                    }, {
+                        text: buttons.torrent.magnet,
+                        callback_data: `magnet=${id}:p=1:o=0`
                     }])
                     keyboard.push([{
                         text: buttons.page.refresh,
