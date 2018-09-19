@@ -32,6 +32,9 @@ const buttons = {
     }
 }
 
+bot.use(database.logger())
+bot.use(database.middleware())
+
 bot.start((ctx) => {
     if (/\/start (\S*)/i.test(ctx.message.text)) {
         const buffer = ctx.message.text.match(/\/start (\S*)/i)[1]
@@ -78,9 +81,6 @@ bot.start((ctx) => {
     }
     ctx.reply('I\'m nyaa.si website bot and i can help you to find some content from there.\nJust use command /search or /search <text to search> and i\'ll found it on nyaa.si')
 })
-
-bot.use(database.logger())
-bot.use(database.middleware())
 
 bot.command('count', async (ctx) => {
     if (ctx.local && ctx.local.admin) { // optional
