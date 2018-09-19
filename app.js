@@ -1,9 +1,7 @@
 const util = require('util')
 const Telegraf = require('telegraf')
 // const rateLimit = require('telegraf-ratelimit') // maybe in future...
-const {
-    URL
-} = require('url')
+const { URL } = require('url')
 
 const config = require('./config.json')
 const nyaasi = require('./nyaasi')
@@ -13,9 +11,10 @@ const generators = require('./generators')
 const Entities = require('html-entities').AllHtmlEntities
 const entities = new Entities()
 const bot = new Telegraf(config.bot.token)
-bot.telegram.getMe().then(botInfo => {
-    bot.options.username = botInfo.username
-})
+bot.telegram.getMe()
+    .then(botInfo => {
+        bot.options.username = botInfo.username
+    })
 
 const buttons = {
     offset: {
