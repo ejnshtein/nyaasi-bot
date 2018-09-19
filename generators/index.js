@@ -1,3 +1,4 @@
 module.exports = {
-    messageKeyboard: require('./message-keyboard')
+    messageKeyboard: require('./message-keyboard'),
+    view: require('./view')
 }

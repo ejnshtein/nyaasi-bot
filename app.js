@@ -28,7 +28,7 @@ const buttons = {
     },
     back: '⬅️ Back',
     torrent: {
-        download: '⬇️ Download torrent file'
+        download: '⬇️ Download'
     }
 }
 
@@ -37,12 +37,44 @@ bot.start((ctx) => {
         const buffer = ctx.message.text.match(/\/start (\S*)/i)[1]
         const text = Buffer.from(buffer, 'base64').toString('ascii')
         if (/download:[0-9]+/i.test(text)) {
-            const fileId = text.match(/download:([0-9]+)/i)[1]
+            const id = text.match(/download:([0-9]+)/i)[1]
             return ctx.replyWithDocument({
-                url: `https://nyaa.si/download/${fileId}.torrent`,
-                filename: `${fileId}.torrent`
+                url: `https://nyaa.si/download/${id}.torrent`,
+                filename: `${id}.torrent`
             })
-        } 
+        } else if (/view:[0-9]+/i.test(text)) {
+            const id = text.match(/view:([0-9]+)/i)[1]
+            const searchUrl = 'https://nyaa.si/?p=1'
+            return generators.view(id, searchUrl)
+                .then((messageText) => {
+                    const keyboard = []
+                    keyboard.push([{
+                        text: buttons.torrent.download,
+                        callback_data: `d=${id}`
+                    }])
+                    keyboard.push([{
+                        text: buttons.page.refresh,
+                        callback_data: `v=${id}:p=1:o=0`
+                    }])
+                    keyboard.push([{
+                        text: buttons.back,
+                        callback_data: 'p=1:o=0'
+                    }])
+                    ctx.reply(messageText, {
+                        reply_markup: {
+                            inline_keyboard: keyboard
+                        },
+                        parse_mode: 'HTML'
+                    })
+                })
+                .catch((err) => {
+                    util.log(err)
+                    ctx.reply(errMessage(`/view/${ctx.match[1]}`), {
+                        parse_mode: 'HTML',
+                        disable_web_page_preview: true
+                    })
+                })
+        }
     }
     ctx.reply('I\'m nyaa.si website bot and i can help you to find some content from there.\nJust use command /search or /search <text to search> and i\'ll found it on nyaa.si')
 })
@@ -233,34 +265,12 @@ bot.action(/^v=(\S+?):(\S+)$/ig, ctx => {
         query = location.searchParams.get('q')
     }
     const searchUrl = `https://nyaa.si/?p=${ctx.match[1]}${query ? `&q=${query}` : ''}`
-    nyaasi.getView(ctx.match[1])
-        .then((response) => {
-            let messageText = `\n${response.title}\n`
-            const timestamp = new Date(Number.parseInt(response.timestamp) * 1000)
-            messageText += `🌐 <a href="https://nyaa.si/view/${ctx.match[1]}">Open on nyaa.si</a>\n\n`
-            if (response.entry) {
-                messageText += `Torrent entry: <a href="https://nyaa.si/help#torrent-colors">${response.entry}</a> \n`
-            }
-            messageText += '💬 Category:  '
-            const category = []
-            response.category.forEach(el => {
-                category.push(`<a href="https://nyaa.si/?c=${el.code}">${el.title}</a>`)
-            })
-            messageText += category.join(' - ') + '\n'
-            messageText += `👨 Submitter: ${typeof response.submitter === 'string' ? response.submitter : `<a href="${response.submitter.link}">${response.submitter.name}</a>`}\n`
-            messageText += `ℹ️ Info: ${response.info}\n`
-            messageText += `💾 File size: ${response.fileSize}\n\n`
-            messageText += `📅 Date: ${timestamp.getFullYear()}-${p(timestamp.getMonth() + 1)}-${p(timestamp.getDate())} ${p(timestamp.getHours())}:${p(timestamp.getMinutes())}\n`
-            messageText += `⬆️ Seeders: <b>${response.seeders}</b>\n`
-            messageText += `⬇️ Leechers: <b>${response.leechers}</b>\n`
-            messageText += `☑️ Completed: <b>${response.completed}</b>\n`
-            messageText += `Info hash: <code>${response.infoHash}</code>\n\n`
-            messageText += `<a href="${response.links.torrent}">Download Torrent</a>\n\n`
-            messageText += `🔁 <b>Updated: ${new Date().getFullYear()}.${p(new Date().getMonth() + 1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}</b><a href="${searchUrl}">&#160;</a>`
+    generators.view(ctx.match[1], searchUrl)
+        .then((messageText) => {
             const keyboard = []
             keyboard.push([{
                 text: buttons.torrent.download,
-                callback_data: `download:${ctx.match[1]};`
+                callback_data: `d=${ctx.match[1]}`
             }])
             keyboard.push([{
                 text: buttons.page.refresh,
@@ -376,7 +386,7 @@ bot.action(/^view:id=(\S+?);([\s\S]*)/i, (ctx) => {
             const keyboard = []
             keyboard.push([{
                 text: buttons.torrent.download,
-                callback_data: `download:${ctx.match[1]};`
+                callback_data: `d=${ctx.match[1]}`
             }])
             keyboard.push([{
                 text: buttons.page.refresh,
@@ -420,10 +430,6 @@ bot.on('inline_query', ctx => {
     const query = ctx.inlineQuery.query
     let page = 1
     let offset = 0
-    if (ctx.inlineQuery.offset) {
-        page = Number.parseInt(ctx.inlineQuery.offset.match(/^p=(\S+):o=(\S+)$/i)[1])
-        offset = Number.parseInt(ctx.inlineQuery.offset.match(/^p=(\S+):o=(\S+)$/i)[2])
-    }
     const searchUrl = `https://nyaa.si/?p=${page}&q=${query}`
     generators.messageKeyboard.inlineMode(query, {
             page: page,
@@ -431,7 +437,7 @@ bot.on('inline_query', ctx => {
         }).then(response => {
             const results = response.map(el => {
                 el.timestamp = new Date(el.timestamp * 1000)
-                let messageText = `\n${entities.decode(el.name)}\n`
+                let messageText = `\n${entities.decode(el.name)}\n\n`
                 messageText += `🌐 <a href="https://nyaa.si${el.links.page}">Open on nyaa.si</a>\n\n`
                 if (el.entry) {
                     messageText += `Torrent entry: <a href="https://nyaa.si/help#torrent-colors">${el.entry}</a> \n`
@@ -461,6 +467,9 @@ bot.on('inline_query', ctx => {
                                 {
                                     text: buttons.torrent.download,
                                     url: `https://t.me/${bot.options.username}?start=${Buffer.from(`download:${el.links.page.replace('/view/', '')}`).toString('base64')}`
+                                }, {
+                                    text: '👁 Show full view',
+                                    url: `https://t.me/${bot.options.username}?start=${Buffer.from(`view:${el.links.page.replace('/view/', '')}`).toString('base64')}`
                                 }
                             ]
                         ]
@@ -468,14 +477,7 @@ bot.on('inline_query', ctx => {
                 }
                 return result
             })
-            if (offset >= 75) {
-                 page += 1
-                 offset = 0
-            } else {
-                offset += 25
-            }
             ctx.answerInlineQuery(results, {
-                next_offset: `p=${page}:o=${offset}`,
                 cache_time: 5
             })
             .catch(util.log)
@@ -504,8 +506,15 @@ function errMessage(path = '/', p, q) {
     return `Something went wrong.\nTry to open manually on <a href="https://nyaa.si${path}?${p ? `p=${p}` : ''}${q ? `q=${q}` : ''}">https://nyaa.si${path}?${p ? `p=${p}` : ''}${q ? `q=${q}` : ''}</a>`
 }
 
+/**
+ * Normalize date 
+ * @param {Date} data 
+ */
 function p(data) {
     return data.toString().length > 1 ? data : `0${data}`
+}
+Number.prototype.normalizeZero = function () {
+    return this.valueOf().toString().length > 1 ? this.valueOf() : `0${this.valueOf()}`
 }
 
 bot.catch((err) => util.log(err))
