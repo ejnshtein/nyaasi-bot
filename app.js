@@ -414,9 +414,14 @@ bot.action(/download:(\S+);/, (ctx) => {
 })
 bot.action(/d=(\S+)/, (ctx) => {
     ctx.answerCbQuery('')
+    const caption = `<a href="https://nyaa.si/view/${ctx.match[1]}">🌐 Open on nyaa.si</a>\n\n`
     ctx.replyWithDocument({
         url: `https://nyaa.si/download/${ctx.match[1]}.torrent`,
         filename: ctx.match[1] + '.torrent'
+    }, {
+        caption: caption,
+        reply_to_message_id: ctx.callbackQuery.message.message_id,
+        parse_mode: 'HTML'
     })
 })
 
@@ -424,9 +429,13 @@ bot.action(/^magnet=([0-9]+)/i, ctx => {
     ctx.answerCbQuery('')
     nyaasi.getView(ctx.match[1])
         .then(response => {
-            ctx.reply(`<code>${response.links.magnet}</code>`, {
+            let messageText = `\n${response.title}\n`
+            messageText += `<a href="https://nyaa.si/view/${ctx.match[1]}">🌐 Open on nyaa.si</a>\n\n`
+            messageText += `Magnet link: <code>${response.links.magnet}</code>`
+            ctx.reply(messageText, {
                 parse_mode: 'HTML',
-                disable_web_page_preview: true
+                disable_web_page_preview: true,
+                reply_to_message_id: ctx.callbackQuery.message.message_id
             })
         })
         .catch((err) => {
