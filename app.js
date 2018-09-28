@@ -1,6 +1,5 @@
 const util = require('util')
 const Telegraf = require('telegraf')
-const Composer = Telegraf.Composer
 // const rateLimit = require('telegraf-ratelimit') // maybe in future...
 const { URL } = require('url')
 
@@ -17,21 +16,31 @@ bot.telegram.getMe()
         bot.options.username = botInfo.username
     })
 
+Number.prototype.normalizeZero = function () {
+    return this.valueOf().toString().length > 1 ? this.valueOf() : `0${this.valueOf()}`
+}
 const buttons = {
     offset: {
-        plus: (plus = 10) => `⬇️ Offset +${plus}`,
-        minus: (minus = 10) => `⬆️ Offset -${minus}`
+        plus: (plus = 10) => `↓ ${plus}`,
+        minus: (minus = 10) => `↑ ${minus}`
     },
     page: {
-        next: (page = 1) => `Page ${page} ➡️`,
-        prev: (page = 1) => `⬅️ Page ${page}`,
-        refresh: '🔄 Refresh'
+        next: (page = 1) => `${page} ›`,
+        nextDub: (page) => `${page} »`,
+        prev: (page = 1) => `‹ ${page}`,
+        prevDub: (page = 0) => `« ${page}`,
+        locate: (page) => `· ${page} ·`,
+        refresh: '🗘 Refresh'
     },
-    back: '⬅️ Back',
+    back: '🡄 Back',
     torrent: {
-        download: '⬇️ Download',
-        magnet: 'Magnet'
+        download: '🡇 Torrent',
+        magnet: '🔗 Magnet'
     }
+}
+const templateStrings = {
+    updated: () => `🗘 Updated ${new Date().getFullYear()}.${(new Date().getMonth() + 1).normalizeZero()}.${new Date().getDate().normalizeZero()} ${new Date().getHours().normalizeZero()}:${new Date().getMinutes().normalizeZero()}:${new Date().getSeconds().normalizeZero()}.${new Date().getMilliseconds()}`,
+    searchText: (url, query, page, offset) => `<a href="${url}">${url}</a>\n\n${query ? `Search keyword: ${query}\n` : '' }Page: ${page}\nOffset: ${offset}\n\n<b>${templateStrings.updated()}</b><a href="${url}">&#160;</a>`
 }
 
 // const limitConfig = {
@@ -92,7 +101,7 @@ bot.start((ctx) => {
                 })
         }
     }
-    ctx.reply('I\'m nyaa.si website bot and i can help you to find some content from there.\nJust use command /search or /search <text to search> and i\'ll found it on nyaa.si')
+    ctx.reply('I\'m nyaa.si website bot and i can help you to find some content from there.\nJust use command /index or /search <text to search> and i\'ll found it on nyaa.si')
 })
 
 bot.command('count', async (ctx) => {
@@ -134,17 +143,19 @@ bot.hears(/\/search ([\s\S]*)/i, middlewares.onlyPrivate, (ctx, next) => {
                     text: buttons.offset.plus(10),
                     callback_data: 'p=1:o=10'
                 }])
-                keyboard.unshift([{
+                const pageLine = [{
+                    text: buttons.page.locate(1),
+                    callback_data: 'p=1:o=0'
+                }, {
                     text: buttons.page.next(2),
                     callback_data: 'p=2:o=0'
-                }])
-                keyboard.unshift([{
-                    text: buttons.page.refresh,
-                    callback_data: 'p=1:o=0'
-                }])
-
+                }, {
+                    text: buttons.page.nextDub(3),
+                    callback_data: 'p=3:o=0'
+                }]
+                keyboard.unshift(pageLine)
                 const searchUrl = `https://nyaa.si/?p=1&q=${ctx.match[1]}`
-                ctx.reply(`<a href="${searchUrl}">${searchUrl}</a>\n\nSearch keyword: ${ctx.match[1]}\nPage: 1\nOffset: 0\n\n<b>🔁 Updated ${new Date().getFullYear()}.${p(new Date().getMonth() + 1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}</b><a href="${searchUrl}">&#160;</a>`, {
+                ctx.reply(templateStrings.searchText(searchUrl, ctx.match[1], 1, 0), {
                     reply_markup: {
                         inline_keyboard: keyboard
                     },
@@ -172,15 +183,18 @@ bot.command(['index', 'search'], middlewares.onlyPrivate, (ctx) => {
                 text: buttons.offset.plus(10),
                 callback_data: 'p=1:o=10'
             }])
-            keyboard.unshift([{
+            const pageLine = [{
+                text: buttons.page.locate(1),
+                callback_data: 'p=1:o=0'
+            }, {
                 text: buttons.page.next(2),
                 callback_data: 'p=2:o=0'
-            }])
-            keyboard.unshift([{
-                text: buttons.page.refresh,
-                callback_data: 'p=1:o=0'
-            }])
-            ctx.reply(`<a href="https://nyaa.si/?p=1">https://nyaa.si/?p=1</a>\n\nPage: 1\nOffset: 0\n\n<b>🔁 Updated: ${new Date().getFullYear()}.${p(new Date().getMonth() + 1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}</b><a href="https://nyaa.si?p=1">&#160;</a>`, {
+            }, {
+                text: buttons.page.nextDub(3),
+                callback_data: 'p=3:o=0'
+            }]
+            keyboard.unshift(pageLine)
+            ctx.reply(templateStrings.searchText('https://nyaa.si/', null, 1, 0), {
                 reply_markup: {
                     inline_keyboard: keyboard
                 },
@@ -200,6 +214,8 @@ bot.action(/^p=(\S+):o=(\S+)$/ig, ctx => {
     ctx.answerCbQuery('')
     const entities = ctx.callbackQuery.message.entities.filter(el => el.type === 'text_link')
     const entity = entities[entities.length - 1]
+    const page = Number.parseInt(ctx.match[1])
+    const offset = Number.parseInt(ctx.match[2])
     const location = new URL(entity.url)
     let query = ''
     if (location.searchParams.has('q')) {
@@ -211,40 +227,60 @@ bot.action(/^p=(\S+):o=(\S+)$/ig, ctx => {
             offset: Number.parseInt(ctx.match[2])
         })
         .then(keyboard => {
-            if (Number.parseInt(ctx.match[2]) >= 10) {
-                keyboard.unshift([{
-                    text: buttons.offset.minus(10),
-                    callback_data: `p=${ctx.match[1]}:o=${Number.parseInt(ctx.match[2]) - 10}`
-                }, {
-                    text: buttons.offset.plus(10),
-                    callback_data: `p=${ctx.match[1]}:o=${Number.parseInt(ctx.match[2]) + 10}`
-                }])
+            if (offset >= 10) {
+                if (offset < 70) {
+                    keyboard.unshift([{
+                        text: buttons.offset.minus(10),
+                        callback_data: `p=${page}:o=${offset - 10}`
+                    }, {
+                        text: buttons.offset.plus(10),
+                        callback_data: `p=${page}:o=${offset + 10}`
+                    }])
+                } else {
+                    keyboard.unshift([{
+                        text: buttons.offset.minus(10),
+                        callback_data: `p=${page}:o=${offset - 10}`
+                    }])
+                }
             } else {
                 keyboard.unshift([{
                     text: buttons.offset.plus(10),
-                    callback_data: `p=${ctx.match[1]}:o=${Number.parseInt(ctx.match[2]) + 10}`
+                    callback_data: `p=${page}:o=${offset + 10}`
                 }])
             }
-            if (Number.parseInt(ctx.match[1]) >= 2) {
-                keyboard.unshift([{
-                    text: buttons.page.prev(Number.parseInt(ctx.match[1]) - 1),
-                    callback_data: `p=${Number.parseInt(ctx.match[1]) - 1}:o=0`
-                }, {
-                    text: buttons.page.next(Number.parseInt(ctx.match[1]) + 1),
-                    callback_data: `p=${Number.parseInt(ctx.match[1]) + 1}:o=0`
-                }])
+            const pageLine = []
+            if (page >= 2) {
+                pageLine.push({
+                    text: buttons.page.prev(page - 1),
+                    callback_data: `p=${page - 1}:o=0`
+                })
+                pageLine.push({
+                    text: buttons.page.locate(page),
+                    callback_data: `p=${page}:o=${offset}`
+                })
             } else {
-                keyboard.unshift([{
-                    text: buttons.page.next(Number.parseInt(ctx.match[1]) + 1),
-                    callback_data: 'p=2:o=0'
-                }])
+                pageLine.push({
+                    text: buttons.page.locate(page),
+                    callback_data: `p=${page}:o=${offset}`
+                })
             }
-            keyboard.unshift([{
-                text: buttons.page.refresh,
-                callback_data: `p=${ctx.match[1]}:o=${ctx.match[2]}`
-            }])
-            const searchUrl = `https://nyaa.si/?p=${ctx.match[1]}${query ? `&q=${query}` : ''}`
-            ctx.editMessageText(`<a href="${searchUrl}">${searchUrl}</a>\n\n${query ? `Search keyword: ${query}\n` : '' }Page: ${ctx.match[1]}\nOffset: ${ctx.match[2]}\n\n<b>🔁 Updated ${new Date().getFullYear()}.${p(new Date().getMonth() + 1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}</b><a href="${searchUrl}">&#160;</a>`, {
+            pageLine.push({
+                text: buttons.page.next(page + 1),
+                callback_data: `p=${page + 1}:o=0`
+            })
+            pageLine.push({
+                text: buttons.page.nextDub(page + 2),
+                callback_data: `p=${page + 2}:o=0`
+            })
+            if (page >= 3) {
+                pageLine.unshift({
+                    text: buttons.page.prevDub(1),
+                    callback_data: 'p=1:o=0'
+                })
+            }
+            keyboard.unshift(pageLine)
+            const searchUrl = `https://nyaa.si/?p=${page}${query ? `&q=${query}` : ''}`
+            ctx.editMessageText(templateStrings.searchText(searchUrl, query, page, offset), {
                 reply_markup: {
                     inline_keyboard: keyboard
                 },
@@ -388,7 +424,6 @@ bot.on('inline_query', ctx => {
                     type: 'article',
                     id: el.links.page.replace('/view/', ''),
                     title: entities.decode(el.name),
-                    url: `https://nyaa.si${el.links.page}`,
                     description: `${el.fileSize} · ⬆️ ${el.seeders} · ⬇️ ${el.leechers} · ☑️ ${el.nbDownload}`,
                     input_message_content: {
                         message_text: messageText,
@@ -410,7 +445,8 @@ bot.on('inline_query', ctx => {
                 return result
             })
             ctx.answerInlineQuery(results, {
-                    cache_time: 5
+                    cache_time: 5,
+                    switch_pm_text: 'Open chat with bot'
                 })
                 .catch(util.log)
             // ctx.reply(`<a href="https://nyaa.si?p=1&q=${ctx.match[1]}}">&#160;</a><a href="https://nyaa.si?p=1&q=${ctx.match[1]}">nyaa.si?p=1&q=${ctx.match[1]}</a>\n\nPage: 1\nOffset: 0\n\nUpdated ${new Date().getFullYear()}.${p(new Date().getMonth() + 1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}`, {
@@ -444,9 +480,6 @@ function errMessage(path = '/', p, q) {
  */
 function p(data) {
     return data.toString().length > 1 ? data : `0${data}`
-}
-Number.prototype.normalizeZero = function () {
-    return this.valueOf().toString().length > 1 ? this.valueOf() : `0${this.valueOf()}`
 }
 
 bot.catch((err) => util.log(err))

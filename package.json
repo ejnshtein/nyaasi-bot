@@ -21,7 +21,7 @@
     "forever": "^0.15.3",
     "html-entities": "^1.2.1",
     "nedb": "^1.8.0",
-    "telegraf": "^3.23.1",
+    "telegraf": "^3.24.0",
     "telegraf-ratelimit": "^2.0.0"
   }
 }

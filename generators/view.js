@@ -30,7 +30,7 @@ module.exports = (id, history) => {
             messageText += `☑️ Completed: <b>${response.completed}</b>\n`
             messageText += `Info hash: <code>${response.infoHash}</code>\n\n`
             messageText += `<a href="${response.links.torrent}">Download Torrent</a>\n\n`
-            messageText += `🔁 <b>Updated: ${date.getFullYear()}.${(date.getMonth() + 1).normalizeZero()}.${date.getDate().normalizeZero()} ${date.getHours().normalizeZero()}:${date.getMinutes().normalizeZero()}:${date.getSeconds().normalizeZero()}.${date.getMilliseconds().normalizeZero()}</b><a href="${history}">&#160;</a>`
+            messageText += `🗘 <b>Updated: ${date.getFullYear()}.${(date.getMonth() + 1).normalizeZero()}.${date.getDate().normalizeZero()} ${date.getHours().normalizeZero()}:${date.getMinutes().normalizeZero()}:${date.getSeconds().normalizeZero()}.${date.getMilliseconds().normalizeZero()}</b><a href="${history}">&#160;</a>`
             return messageText
         })
 }
