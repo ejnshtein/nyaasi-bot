@@ -446,7 +446,8 @@ bot.on('inline_query', ctx => {
             })
             ctx.answerInlineQuery(results, {
                     cache_time: 5,
-                    switch_pm_text: 'Open chat with bot'
+                    switch_pm_text: 'Open chat with bot',
+                    switch_pm_parameter: 'inlined'
                 })
                 .catch(util.log)
             // ctx.reply(`<a href="https://nyaa.si?p=1&q=${ctx.match[1]}}">&#160;</a><a href="https://nyaa.si?p=1&q=${ctx.match[1]}">nyaa.si?p=1&q=${ctx.match[1]}</a>\n\nPage: 1\nOffset: 0\n\nUpdated ${new Date().getFullYear()}.${p(new Date().getMonth() + 1)}.${p(new Date().getDate())} ${p(new Date().getHours())}:${p(new Date().getMinutes())}:${p(new Date().getSeconds())}.${new Date().getMilliseconds()}`, {
