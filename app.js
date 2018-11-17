@@ -319,7 +319,6 @@ bot.on('inline_query', async ctx => {
             type: 'article',
             id: el.id.toString(),
             title: decode(el.name),
-            url: `https://nyaa.si/view/${el.id}`,
             description: `${el.fileSize} · ⬆️ ${el.seeders} · ⬇️ ${el.leechers} · ☑️ ${el.nbDownload}\n${template.date(el.timestamp)}`,
             input_message_content: {
                 message_text: messageText,
