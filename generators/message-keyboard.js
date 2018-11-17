@@ -1,37 +1,34 @@
-const nyaasi = require('../nyaasi')
+const { getPage } = require('../nyaasi')
 const Entities = require('html-entities').AllHtmlEntities
-const entities = new Entities()
+const { decode } = new Entities()
+
 
 Number.prototype.normalizeZero = function () {
     return this.valueOf().toString().length > 1 ? this.valueOf() : `0${this.valueOf()}`
 }
 
-module.exports = (query, params = {}) => {
-    const opt = Object.assign({}, {
-        page: '1',
-        offset: 0
-    }, params)
-    return nyaasi.getPage(query ? `?p=${opt.page}&q=${query}` : opt.page === '1' ? '/' : `?p=${opt.page}`)
+module.exports = (query = '', params = {}) => {
+    params = { page: 1, offset: 0, history: 'p=1:o=0', ...params }
+    return getPage(query ? `?p=${params.page}&q=${query}` : params.page === '1' ? '/' : `?p=${params.page}`)
         .then(response => {
             const keyboard = []
             let line = []
-            const view = '/view/'
-            const offsetted = response.slice(opt.offset, opt.offset + 10)
+            const offsetted = response.slice(params.offset, params.offset + 10)
             if (offsetted.length > 0) {
                 offsetted.forEach(el => {
-                    const text = el.entry + entities.decode(el.name)
-                    const callback_data = `v=${el.links.page.replace(view, '')}:${opt.history}`
+                    const text = el.entry + decode(el.name)
+                    const callback_data = `v=${el.id}:h=${params.history}`
                     if (line.length < 1) {
                         line.push({ // ^v=(\S+):p=(\S+):o=(\S+)
-                            text: text,
-                            callback_data: callback_data
+                            text,
+                            callback_data
                         })
                     } else {
                         keyboard.push(line)
                         line = []
                         line.push({
-                            text: text,
-                            callback_data: callback_data
+                            text,
+                            callback_data
                         })
                     }
                 })
@@ -41,16 +38,7 @@ module.exports = (query, params = {}) => {
         })
 }
 module.exports.inlineMode = (query, params = {}) => {
-    const opt = Object.assign({}, {
-        page: '1',
-        offset: 0
-    }, params)
-    return new Promise((resolve, reject) => {
-        nyaasi.getPage(query ? `?p=${opt.page}&q=${query}` : opt.page === '1' ? '/' : `?p=${opt.page}`)
-            .then(result => {
-                resolve(result.slice(opt.offset, opt.offset + 50))
-            })
-            .catch(reject)
-        
-    })
+    params = { page: 1, offset: 0, ...params }
+    return getPage(query ? `?p=${params.page}&q=${query}` : params.page === '1' ? '/' : `?p=${params.page}`)
+        .then(result => result.slice(params.offset, params.offset + 25))
 }

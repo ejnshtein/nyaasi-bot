@@ -1,24 +1,16 @@
-const axios = require('axios')
+const nyaa = require('axios').default.create({
+    baseURL:'https://nyaa.si',
+    responseType: 'document'
+})
 const scrap = require('./scrap')
-const origin = 'https://nyaa.si'
 
 module.exports = {
-    getPage(url) {
-        return new Promise((res, rej) => {
-            axios.get(origin + url, {
-                    responseType: 'document'
-                })
-                .then((response) => res(scrap.parseTorrentsList(response.data)))
-                .catch(rej)
-        })
+    getPage (url) {
+        return nyaa.get(url)
+            .then(response => scrap.parseTorrentsList(response.data))
     },
-    getView(id) {
-        return new Promise((res, rej) => {
-            axios.get(`${origin}/view/${id}`, {
-                    responseType: 'document'
-                })
-                .then((response) => res(scrap.parseViewPage(response.data)))
-                .catch(rej)
-        })
+    getView (id) {
+        return nyaa.get(`/view/${id}`)
+            .then(response => scrap.parseViewPage(response.data))
     }
 }

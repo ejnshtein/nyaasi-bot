@@ -1,6 +1,6 @@
 {
   "name": "nyaasi-bot",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "nyaa.si telegram bot",
   "main": "app.js",
   "scripts": {
@@ -21,7 +21,6 @@
     "forever": "^0.15.3",
     "html-entities": "^1.2.1",
     "nedb": "^1.8.0",
-    "telegraf": "^3.24.0",
-    "telegraf-ratelimit": "^2.0.0"
+    "telegraf": "^3.25.0"
   }
 }

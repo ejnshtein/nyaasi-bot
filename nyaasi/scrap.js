@@ -7,6 +7,7 @@ function parseTorrentsList(html) {
     table.children('tr').each((i, el) => {
         const element = cheerio.load(el)
         const torrent = {}
+        torrent.id = Number.parseInt(element('td:nth-child(2) a:last-of-type').attr('href').replace('/view/', ''))
         torrent.category = {
             label: element('td:nth-child(1) a').attr('title'),
             code: element('td:nth-child(1) a').attr('href').match(/c=(\S+)/i)[1]
@@ -46,10 +47,10 @@ function parseViewPage(html) {
     torrent.title = view('body > div.container > div:nth-child(1) > div.panel-heading > h3').text()
     torrent.fileSize = view('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(4) > div:nth-child(2)').html()
     torrent.category = []
-    view('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(1) > div:nth-child(2)').children('a').each((i,el)=>{
+    view('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(1) > div:nth-child(2)').children('a').each((i, el) => {
         torrent.category.push({
             title: el.children[0].data,
-            code: el.attribs["href"].match(/c=(\S+)/i)[1]
+            code: el.attribs['href'].match(/c=(\S+)/i)[1]
         })
     })
     switch (view('body > div.container > div:nth-child(1)').attr('class').match(/panel-(\S+)/i)[1]){
