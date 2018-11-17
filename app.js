@@ -344,7 +344,7 @@ bot.on('inline_query', async ctx => {
     })
     ctx.answerInlineQuery(results, {
             cache_time: 5,
-            switch_pm_text: 'Open chat with bot',
+            switch_pm_text: 'Continue searching...',
             switch_pm_parameter: `${Buffer.from(`query:${query.slice(0, 64)}`).toString('base64')}`,
             next_offset: `${offset + 25}`
         })
