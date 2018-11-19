@@ -17,7 +17,7 @@ module.exports = (query = '', params = {}) => {
             if (offsetted.length > 0) {
                 offsetted.forEach(el => {
                     const text = el.entry + decode(el.name)
-                    const callback_data = `v=${el.id}:h=${params.history}`
+                    const callback_data = `v=${el.id}:${params.history}`
                     if (line.length < 1) {
                         line.push({ // ^v=(\S+):p=(\S+):o=(\S+)
                             text,
