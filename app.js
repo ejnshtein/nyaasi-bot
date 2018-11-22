@@ -314,12 +314,12 @@ bot.on('inline_query', async ctx => {
     const results = response.map(el => {
         el.timestamp = new Date(el.timestamp * 1000)
         let messageText = `\n<a href="https://nyaa.si${el.links.page}">${decode(el.name)}</a>\n`
-        messageText += `${el.fileSize} · ${template.date(el.timestamp)} · ⬆️ ${el.seeders} · ⬇️ ${el.leechers} · ☑️ ${el.nbDownload}`
+        messageText += `${el.fileSize} · ${template.date(el.timestamp)} · ⬆️ ${el.seeders} · ⬇️ ${el.leechers} · ☑️ ${el.nbDownload}\n${el.category.label}`
         return {
             type: 'article',
             id: el.id.toString(),
             title: decode(el.name),
-            description: `${el.fileSize} · ⬆️ ${el.seeders} · ⬇️ ${el.leechers} · ☑️ ${el.nbDownload}\n${template.date(el.timestamp)}`,
+            description: `${el.fileSize} · ⬆️ ${el.seeders} · ⬇️ ${el.leechers} · ☑️ ${el.nbDownload}\n${el.category.label}\n${template.date(el.timestamp)}`,
             input_message_content: {
                 message_text: messageText,
                 disable_web_page_preview: false,

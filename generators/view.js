@@ -15,12 +15,7 @@ module.exports = (id, history) => {
             if (response.entry) {
                 messageText += `Torrent entry: <a href="https://nyaa.si/help#torrent-colors">${response.entry}</a> \n`
             }
-            messageText += '💬 Category:  '
-            const category = []
-            response.category.forEach(el => {
-                category.push(`<a href="https://nyaa.si/?c=${el.code}">${el.title}</a>`)
-            })
-            messageText += category.join(' - ') + '\n'
+            messageText += `💬 Category:  ${response.category.map(el => `<a href="https://nyaa.si/?c=${el.code}">${el.title}</a>`).join(' - ')}\n`
             messageText += `👨 Submitter: ${typeof response.submitter === 'string' ? response.submitter : `<a href="${response.submitter.link}">${response.submitter.name}</a>`}\n`
             messageText += `ℹ️ Info: ${response.info}\n`
             messageText += `💾 File size: ${response.fileSize}\n\n`
