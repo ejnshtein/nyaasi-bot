@@ -1,6 +1,7 @@
 const RssParser = require('rss-parser')
 const { scheduleJob } = require('node-schedule')
 const { date: formateDate } = require('../template')
+const buttons = require('../buttons')
 const { parseURL } = new RssParser({
   customFields: {
     item: [
@@ -16,7 +17,8 @@ const { parseURL } = new RssParser({
     ]
   }
 })
-const { bot: { telegram } } = require('../bot')
+const { bot } = require('../bot')
+const { telegram } = bot
 
 const feed = {
   items: [],
@@ -35,6 +37,7 @@ scheduleJob('*/2 * * * *', async () => {
       await sleep(1500)
     }
   }
+  feed.items = newFeed.items
 });
 
 (async () => {
@@ -56,6 +59,20 @@ const sendMessage = async post => {
   messageText += `${post['nyaa:size']} · ${formateDate(new Date(post.isoDate))} · ⬆️ ${post['nyaa:seeders']} · ⬇️ ${post['nyaa:leechers']}\n`
   messageText += `<a href="https://nyaa.si?c=${post['nyaa:categoryId']}">${post['nyaa:category']}</a>`
   await telegram.sendMessage('@nyaasi', messageText, {
-    parse_mode: 'HTML'
+    parse_mode: 'HTML',
+    reply_markup: {
+      inline_keyboard: [
+        [{
+          text: buttons.torrent.magnet,
+          url: `https://t.me/${bot.options.username}?start=${Buffer.from(`magnet:${post.id}`).toString('base64')}`
+        }, {
+          text: buttons.torrent.download,
+          url: `https://t.me/${bot.options.username}?start=${Buffer.from(`download:${post.id}`).toString('base64')}`
+        }, {
+          text: 'Full view',
+          url: `https://t.me/${bot.options.username}?start=${Buffer.from(`view:${post.id}`).toString('base64')}`
+        }]
+      ]
+    }
   })
 }
