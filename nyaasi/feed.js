@@ -68,6 +68,7 @@ const sendMessage = async post => {
           url: `https://t.me/${bot.options.username}?start=${Buffer.from(`view:${post.id}`).toString('base64')}`
         }]
       ]
-    }
+    },
+    disable_web_page_preview: true
   })
 }
