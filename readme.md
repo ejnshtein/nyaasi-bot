@@ -16,3 +16,7 @@ Other commands and features is still in development.
 
 [<img src="https://i.imgur.com/5VVUAv4.png" height="400">](https://t.me/nyaasi_bot)[<img src="https://i.imgur.com/S3nwDbf.png" height="400">](https://t.me/nyaasi_bot)  
 Type in any chat **@nyaasi_bot** and it will work!
+
+## Extra
+
+Here's nyaa.si RSS feed channel: [Nyaa.si](https://t.me/nyaasi)
