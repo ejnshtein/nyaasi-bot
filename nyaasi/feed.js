@@ -55,10 +55,8 @@ async function loadFeed () {
 
 const sleep = timeout => new Promise(resolve => setTimeout(resolve, timeout))
 const sendMessage = async post => {
-  let messageText = `${post.title}\n`
-  messageText += `${post['nyaa:size']}\n`
-  messageText += `<a href="https://nyaa.si?c=${post['nyaa:categoryId']}">${post['nyaa:category']}</a>\n`
-  messageText += `<a href="${post.guid}">View</a> · <a href="${post.link}">Download</a>`
+  let messageText = `<b>${post.title}</b>\n`
+  messageText += `${post['nyaa:size']} | <a href="${post.link}">Download</a> | <a href="${post.guid}">View</a>\n`
   await telegram.sendMessage('@nyaasi', messageText, {
     parse_mode: 'HTML',
     reply_markup: {
