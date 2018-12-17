@@ -28,7 +28,7 @@ const feed = {
   link: 'https://nyaa.si/'
 }
 
-scheduleJob('*/1 * * * *', async () => {
+const job = scheduleJob('*/1 * * * *', async () => {
   const newFeed = await loadFeed()
   const newPosts = newFeed.items.filter(el => !feed.items.some(p => p.id === el.id)).reverse()
   if (newPosts.length) {
@@ -58,13 +58,13 @@ const sendMessage = async post => {
   let messageText = `${post.title}\n`
   messageText += `${post['nyaa:size']}\n`
   messageText += `<a href="https://nyaa.si?c=${post['nyaa:categoryId']}">${post['nyaa:category']}</a>\n`
-  messageText += `<a href="${post.guid}">Url</a> · <a href="${post.link}">Download</a>`
+  messageText += `<a href="${post.guid}">View</a> · <a href="${post.link}">Download</a>`
   await telegram.sendMessage('@nyaasi', messageText, {
     parse_mode: 'HTML',
     reply_markup: {
       inline_keyboard: [
         [{
-          text: 'Full view',
+          text: 'Open view',
           url: `https://t.me/${bot.options.username}?start=${Buffer.from(`view:${post.id}`).toString('base64')}`
         }]
       ]
