@@ -30,7 +30,7 @@ const feed = {
 
 scheduleJob('*/1 * * * *', async () => {
   const newFeed = await loadFeed()
-  const newPosts = newFeed.items.filter(el => !feed.items.some(p => p.id === el.id))
+  const newPosts = newFeed.items.filter(el => !feed.items.some(p => p.id === el.id)).reverse()
   if (newPosts.length) {
     for (const post of newPosts) {
       await sendMessage(post)
