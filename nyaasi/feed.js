@@ -1,7 +1,6 @@
 const RssParser = require('rss-parser')
+const { buffer } = require('../lib')
 const { scheduleJob } = require('node-schedule')
-const { date: formateDate } = require('../template')
-const buttons = require('../buttons')
 const { parseURL } = new RssParser({
   customFields: {
     item: [
@@ -17,7 +16,7 @@ const { parseURL } = new RssParser({
     ]
   }
 })
-const { bot } = require('../bot')
+const { bot } = require('../core/bot')
 const { telegram } = bot
 
 const feed = {
@@ -28,16 +27,16 @@ const feed = {
   link: 'https://nyaa.si/'
 }
 
-const job = scheduleJob('*/1 * * * *', async () => {
+scheduleJob('*/1 * * * *', async () => {
   const newFeed = await loadFeed()
   const newPosts = newFeed.items.filter(el => !feed.items.some(p => p.id === el.id)).reverse()
+  feed.items = newFeed.items
   if (newPosts.length) {
     for (const post of newPosts) {
       await sendMessage(post)
       await sleep(1500)
     }
   }
-  feed.items = newFeed.items
 });
 
 (async () => {
@@ -54,16 +53,17 @@ async function loadFeed () {
 }
 
 const sleep = timeout => new Promise(resolve => setTimeout(resolve, timeout))
-const sendMessage = async post => {
-  let messageText = `<b>${post.title}</b>\n`
+async function sendMessage (post) {
+  let messageText = `#${post['nyaa:categoryId']} <a href="https://nyaa.si/?c=${post['nyaa:categoryId']}>${post['nyaa:category']}</a>\n`
+  messageText += `<b>${post.title}</b>\n`
   messageText += `${post['nyaa:size']} | <a href="${post.link}">Download</a> | <a href="${post.guid}">View</a>\n`
-  await telegram.sendMessage('@nyaasi', messageText, {
+  await telegram.sendMessage(process.env.CHANNEL_ID, messageText, {
     parse_mode: 'HTML',
     reply_markup: {
       inline_keyboard: [
         [{
           text: 'Open view',
-          url: `https://t.me/${bot.options.username}?start=${Buffer.from(`view:${post.id}`).toString('base64')}`
+          url: `https://t.me/${bot.options.username}?start=${buffer.encode(`view:${post.id}`)}`
         }]
       ]
     },

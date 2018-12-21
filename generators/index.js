@@ -1,6 +1,5 @@
 const messageKeyboard = require('./message-keyboard')
-const buttons = require('../buttons')
-const template = require('../template')
+const { buttons, templates } = require('../lib')
 module.exports = {
   messageKeyboard,
   view: require('./view'),
@@ -22,7 +21,7 @@ module.exports = {
     }])
     const searchUrl = `https://nyaa.si/?p=1&q=${query}`
     return {
-      message: template.searchText(searchUrl, query, 1, 0),
+      message: templates.searchText(searchUrl, query, 1, 0),
       extra: {
         reply_markup: {
           inline_keyboard: keyboard

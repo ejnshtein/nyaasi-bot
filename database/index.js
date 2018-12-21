@@ -1,31 +1,17 @@
-const nedb = require('./nedb')
-const users = nedb.collection('users')
-const admins = nedb.collection('admins')
-
+/* eslint operator-linebreak:0, no-mixed-operators:0 */
+const collection = require('./mongodb')
+const users = collection('users')
 module.exports = {
-  nedb,
+  collection,
   logger () {
     return async ({ updateType, chat, from }, next) => {
-      if ((updateType === 'message' && chat.type === 'private') || updateType === 'callback_query') {
-        const user = await users.findOne({ id: from.id })
+      if (updateType === 'callback_query'
+        || updateType === 'message' && chat.type === 'private') {
+        const user = await users.findOne({ id: from.id }).exec()
         if (user) {
-          await users.update({ id: from.id }, { $set: { activeTime: Date.now() } })
+          await users.updateOne({ id: from.id }, { $set: { last_update: Date.now() } }).exec()
         } else {
-          await users.insert({
-            id: from.id,
-            activeTime: Date.now()
-          })
-        }
-      }
-      next()
-    }
-  },
-  middleware () {
-    return async (ctx, next) => {
-      const admin = await admins.findOne({ id: ctx.from.id })
-      if (admin) {
-        ctx.local = {
-          admin
+          await users.create({ id: from.id })
         }
       }
       next()

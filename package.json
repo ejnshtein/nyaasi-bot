@@ -1,6 +1,6 @@
 {
   "name": "nyaasi-bot",
-  "version": "0.1.0b",
+  "version": "0.1.2",
   "description": "nyaa.si telegram bot",
   "main": "app.js",
   "scripts": {

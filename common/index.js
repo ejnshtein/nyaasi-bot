@@ -1,0 +1,7 @@
+require('./start')
+require('./view')
+require('./search')
+require('./inline-query')
+require('./source')
+require('./count')
+require('./about')

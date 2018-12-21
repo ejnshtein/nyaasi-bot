@@ -1,3 +1,4 @@
-require('./bot')
-require('./nyaasi/nyaasi')
-require('./commands/commands')
+require('dotenv').config({ path: './.env' })
+require('./core/bot')
+require('./nyaasi')
+require('./common')
