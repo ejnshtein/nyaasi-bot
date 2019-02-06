@@ -16,8 +16,7 @@ const { parseURL } = new RssParser({
     ]
   }
 })
-const { bot } = require('../core/bot')
-const { telegram } = bot
+const sleep = timeout => new Promise(resolve => setTimeout(resolve, timeout))
 
 const feed = {
   items: [],
@@ -25,19 +24,7 @@ const feed = {
   title: 'Nyaa - Home - Torrent File RSS',
   description: 'RSS Feed for Home',
   link: 'https://nyaa.si/'
-}
-
-scheduleJob('*/1 * * * *', async () => {
-  const newFeed = await loadFeed()
-  const newPosts = newFeed.items.filter(el => !feed.items.some(p => p.id === el.id)).reverse()
-  feed.items = newFeed.items
-  if (newPosts.length) {
-    for (const post of newPosts) {
-      await sendMessage(post)
-      await sleep(1500)
-    }
-  }
-});
+};
 
 (async () => {
   const data = await loadFeed()
@@ -52,21 +39,36 @@ async function loadFeed () {
   return data
 }
 
-const sleep = timeout => new Promise(resolve => setTimeout(resolve, timeout))
-async function sendMessage (post) {
-  let messageText = `<b>${post.title}</b>\n`
-  messageText += `${post['nyaa:size']} | <a href="${post.link}">Download</a> | <a href="${post.guid}">View</a>\n`
-  messageText += `#c${post['nyaa:categoryId']} <a href="https://nyaa.si/?c=${post['nyaa:categoryId']}">${post['nyaa:category']}</a>\n`
-  await telegram.sendMessage(process.env.CHANNEL_ID, messageText, {
-    parse_mode: 'HTML',
-    reply_markup: {
-      inline_keyboard: [
-        [{
-          text: 'Open view',
-          url: `https://t.me/${bot.options.username}?start=${buffer.encode(`view:${post.id}`)}`
-        }]
-      ]
-    },
-    disable_web_page_preview: true
+module.exports = bot => {
+  const { telegram } = bot
+
+  scheduleJob('*/1 * * * *', async () => {
+    const newFeed = await loadFeed()
+    const newPosts = newFeed.items.filter(el => !feed.items.some(p => p.id === el.id)).reverse()
+    feed.items = newFeed.items
+    if (newPosts.length) {
+      for (const post of newPosts) {
+        await sendMessage(post)
+        await sleep(1500)
+      }
+    }
   })
+
+  async function sendMessage (post) {
+    let messageText = `<b>${post.title}</b>\n`
+    messageText += `${post['nyaa:size']} | <a href="${post.link}">Download</a> | <a href="${post.guid}">View</a>\n`
+    messageText += `#c${post['nyaa:categoryId']} <a href="https://nyaa.si/?c=${post['nyaa:categoryId']}">${post['nyaa:category']}</a>`
+    await telegram.sendMessage(process.env.CHANNEL_ID, messageText, {
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [{
+            text: 'Open view',
+            url: `https://t.me/${bot.options.username}?start=${buffer.encode(`view:${post.id}`)}`
+          }]
+        ]
+      },
+      disable_web_page_preview: true
+    })
+  }
 }
