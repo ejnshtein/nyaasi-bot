@@ -4,7 +4,7 @@ const { AllHtmlEntities } = require('html-entities')
 const { buttons, templates, buffer } = require('../lib')
 const { decode } = new AllHtmlEntities()
 const { searchKeyboard } = require('../generators')
-const { getTorrent } = require('../nyaasi')
+const { getTorrent, search } = require('../nyaasi')
 
 composer.inlineQuery(/^torrent:([0-9]+)$/i, async ({ match, me, inlineQuery, answerInlineQuery }) => {
   if (inlineQuery.offset && inlineQuery.offset === '1') { return answerInlineQuery([], queryOptions()) }
@@ -36,14 +36,17 @@ composer.on('inline_query', async ctx => {
   offset = offset ? Number.parseInt(offset) : 1
   const page = offset ? Math.floor(offset / 75) + 1 : 1
   try {
-    var response = await searchKeyboard.inlineMode(query, {
-      page,
-      offset: offset % 75
-    })
+    var response = await search(query, { params: { p: page } })
+    // var response = await searchKeyboard.inlineMode(query, {
+    //   page,
+    //   offset: offset % 75
+    // })
   } catch (e) {
     return ctx.answerInlineQuery(sendError(e), queryOptions())
   }
-  const results = response.map(torrent => inlineTorrent(torrent, ctx.me))
+  const results = response
+    .slice(offset % 75, offset % 75 + 25)
+    .map(torrent => inlineTorrent(torrent, ctx.me))
   ctx.answerInlineQuery(
     results,
     queryOptions(undefined, query, `${results.length === 25 ? offset + 25 : 1}`)
