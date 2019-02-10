@@ -10,11 +10,11 @@ const {
 class Nyassi {
   static search (query = '', params = {}) {
     return nyaa.get('/',
-      Object.assign({
-        params: {
+      {
+        params: Object.assign({
           q: query
-        }
-      }, params)
+        }, params)
+      }
     ).then(({ data }) => parseSearch(data))
   }
 

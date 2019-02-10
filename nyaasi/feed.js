@@ -28,7 +28,7 @@ const feed = {
 
 (async () => {
   const data = await loadFeed()
-  feed.items = data.items
+  feed.items = data.items.map(el => el.id)
 })()
 
 async function loadFeed () {
@@ -44,8 +44,8 @@ module.exports = bot => {
 
   scheduleJob('*/1 * * * *', async () => {
     const newFeed = await loadFeed()
-    const newPosts = newFeed.items.filter(el => !feed.items.some(p => p.id === el.id)).reverse()
-    feed.items = newFeed.items
+    const newPosts = newFeed.items.filter(el => !feed.items.includes(el.id)).reverse()
+    feed.items = newFeed.items.map(el => el.id)
     if (newPosts.length) {
       for (const post of newPosts) {
         await sendMessage(post)
