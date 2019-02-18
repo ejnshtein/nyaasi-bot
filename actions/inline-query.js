@@ -3,7 +3,6 @@ const composer = new Composer()
 const { AllHtmlEntities } = require('html-entities')
 const { buttons, templates, buffer } = require('../lib')
 const { decode } = new AllHtmlEntities()
-const { searchKeyboard } = require('../generators')
 const { getTorrent, search } = require('../nyaasi')
 
 composer.inlineQuery(/^torrent:([0-9]+)$/i, async ({ match, me, inlineQuery, answerInlineQuery }) => {

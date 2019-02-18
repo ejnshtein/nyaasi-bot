@@ -4,3 +4,4 @@ config.json
 *.db
 .env
 test.js
+.tmp

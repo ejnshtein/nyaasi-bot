@@ -20,7 +20,7 @@ class Nyassi {
 
   static getTorrent (id, params = {}) {
     return nyaa.get(`/view/${id}`, params)
-      .then(({ data }) => parseTorrent(data))
+      .then(({ data }) => parseTorrent(data, id))
   }
 }
 

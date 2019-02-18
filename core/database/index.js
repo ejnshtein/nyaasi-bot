@@ -52,19 +52,38 @@ const collections = [
     })
   },
   {
-    name: 'cachedtorrents',
+    name: 'torrents',
     schema: new Schema({
       id: {
         type: Number,
         unique: true
       },
-      type: {
-        type: String,
-        required: true
+      name: String,
+      type: String,
+      document: {
+        type: Object,
+        required: false
       },
-      file_id: {
-        type: String,
-        required: true
+      video: {
+        type: Object,
+        required: false
+      },
+      audio: {
+        type: Object,
+        required: false
+      },
+      animation: {
+        type: Object,
+        required: false
+      },
+      photo: {
+        type: Schema.Types.Mixed,
+        required: false
+      }
+    }, {
+      timestamps: {
+        createdAt: 'created_at',
+        updatedAt: 'updated_at'
       }
     })
   }
