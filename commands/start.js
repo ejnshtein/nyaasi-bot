@@ -4,8 +4,9 @@ const composer = new Composer()
 const { buttons, buffer } = require('../lib')
 const { torrentView, searchTorrentKeyboard } = require('../generators')
 const { getTorrent } = require('../nyaasi')
+const { onlyPrivate } = require('../middlewares')
 
-composer.start(async ctx => {
+composer.start(onlyPrivate, async ctx => {
   if (ctx.startPayload) {
     const text = buffer.decode(ctx.startPayload)
     switch (true) {
