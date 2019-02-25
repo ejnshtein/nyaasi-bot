@@ -35,7 +35,7 @@ composer.on('inline_query', async ctx => {
   offset = offset ? Number.parseInt(offset) : 1
   const page = offset ? Math.floor(offset / 75) + 1 : 1
   try {
-    var response = await search(query, { p: page })
+    var response = await search(query, { params: { p: page } })
     // var response = await searchKeyboard.inlineMode(query, {
     //   page,
     //   offset: offset % 75

@@ -5,8 +5,7 @@ module.exports = async ({ chat }, next) => {
     } else {
       return true
     }
+  } else {
+    return false
   }
-  // else if (chat.type === 'group' || chat.type === 'supergroup') {
-  //   reply('This bot works only in private chat.')
-  // }
 }

@@ -5,7 +5,9 @@ const { decode } = new AllHtmlEntities()
 
 module.exports = async (query, page, offset) => {
   const searchResult = await search(query, {
-    p: page
+    params: {
+      p: page
+    }
   })
   const keyboard = searchResult
     .slice(offset, offset + 10)

@@ -1,5 +1,6 @@
 const cheerio = require('cheerio')
 const origin = 'https://nyaa.si'
+const bytes = require('bytes-iec')
 
 function parseSearch (html) {
   const table = cheerio.load(html)('body > div.container > div.table-responsive > table > tbody')
@@ -25,6 +26,7 @@ function parseSearch (html) {
         magnet: select('td:nth-child(3) a:last-of-type').attr('href')
       },
       fileSize: select('td:nth-child(4)').html(),
+      fileSizeBytes: bytes.parse(select('td:nth-child(4)').html()),
       timestamp: Number.parseInt(
         select('td:nth-child(5)')
           .attr('data-timestamp')
@@ -39,11 +41,13 @@ function parseSearch (html) {
   return files
 }
 
-function parseTorrent (html) {
+function parseTorrent (html, id) {
   const select = cheerio.load(html)
   return {
+    id: typeof id === 'string' ? Number.parseInt(id) : id,
     title: select('body > div.container > div:nth-child(1) > div.panel-heading > h3').text(),
     fileSize: select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(4) > div:nth-child(2)').html(),
+    fileSizeBytes: bytes.parse(select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(4) > div:nth-child(2)').html()),
     category: select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(1) > div:nth-child(2)')
       .children('a')
       .map((i, el) => (
@@ -73,7 +77,8 @@ function parseTorrent (html) {
     infoHash: select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(5) > div.col-md-5 > kbd').html(),
     seeders: select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(2) > div:nth-child(4) > span').html(),
     leechers: select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(3) > div:nth-child(4) > span').html(),
-    completed: select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(4) > div:nth-child(4)').html()
+    completed: select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(4) > div:nth-child(4)').html(),
+    files: parseTorrentFiles(select('body > div.container > div:nth-child(3) > div.torrent-file-list.panel-body').html())
   }
 }
 
@@ -85,10 +90,33 @@ module.exports = {
 function getEntry (entry) {
   switch (entry) {
     case 'danger':
-      return '[Remake] '
+      return '[Remake]'
     case 'success':
-      return '[Trusted] '
+      return '[Trusted]'
     default:
       return ''
   }
+}
+
+function parseTorrentFiles (html) {
+  const select = cheerio.load(html)
+
+  return select('ul > li').map((i, el) => {
+    const element = cheerio(el)
+    if (element.children('a.folder').text()) {
+      return {
+        type: 'folder',
+        title: element.children('a.folder').text(),
+        folder: parseTorrentFiles(element.html())
+      }
+    } else {
+      const size = element.children('span.file-size').text().replace(/\(|\)/ig, '')
+      return {
+        type: 'file',
+        title: element.text().replace(` (${size})`, ''),
+        size: size,
+        sizeBytes: bytes.parse(size)
+      }
+    }
+  }).get()
 }

@@ -2,6 +2,7 @@ const nyaa = require('axios').default.create({
   baseURL: 'https://nyaa.si',
   responseType: 'document'
 })
+const merge = require('deepmerge')
 const {
   parseSearch,
   parseTorrent
@@ -9,12 +10,16 @@ const {
 
 class Nyassi {
   static search (query = '', params = {}) {
-    return nyaa.get('/',
-      {
-        params: Object.assign({
-          q: query
-        }, params)
-      }
+    return nyaa.get('/', merge.all(
+      [
+        {
+          params: {
+            q: query
+          }
+        },
+        params
+      ]
+    )
     ).then(({ data }) => parseSearch(data))
   }
 
