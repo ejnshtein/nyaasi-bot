@@ -1,6 +1,9 @@
 const nyaa = require('axios').default.create({
   baseURL: 'https://nyaa.si',
-  responseType: 'document'
+  responseType: 'document',
+  headers: {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.109 Safari/537.36'
+  }
 })
 const merge = require('deepmerge')
 const {
@@ -20,7 +23,10 @@ class Nyassi {
         params
       ]
     )
-    ).then(({ data }) => parseSearch(data))
+    ).then(({ data, headers, config }) => {
+      // console.log(headers, config.headers)
+      return parseSearch(data)
+    })
   }
 
   static getTorrent (id, params = {}) {

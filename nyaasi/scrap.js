@@ -3,7 +3,8 @@ const origin = 'https://nyaa.si'
 const bytes = require('bytes-iec')
 
 function parseSearch (html) {
-  const table = cheerio.load(html)('body > div.container > div.table-responsive > table > tbody')
+  const page = cheerio.load(html)
+  const table = page('body > div.container > div.table-responsive > table > tbody')
   const files = table.children('tr').map((i, el) => {
     const select = cheerio.load(el)
     return {
@@ -37,8 +38,27 @@ function parseSearch (html) {
       entry: getEntry(el.attribs['class'])
     }
   }).get()
-
-  return files
+  const current_page = Number.parseInt(
+    page('body > div.container > div.center > nav > ul').html()
+      ? new URL(page('body > div.container > div.center > nav > ul > li.active > a').attr('href'), 'https://nyaa.si').searchParams.get('p')
+      : page('body > div.container > div.center > ul > li.active').text()
+  ) || 1
+  const last_page = Number.parseInt(
+    page('body > div.container > div.center > nav > ul').html()
+      ? new URL(page('body > div.container > div.center > nav > ul > li:last-of-type').prev().children('a').attr('href'), 'https://nyaa.si').searchParams.get('p')
+      : new URL(page('body > div.container > div.center > ul > li.next').prev().children('a').attr('href'), 'https://nyaa.si').searchParams.get('p')
+  ) || 1
+  // console.log(
+  //   page('body > div.container > div.center > nav > ul').html(),
+  //   page('body > div.container > div.center > ul').html(),
+  //   page('body > div.container > div.center > ul > li.active').text(),
+  //   page('body > div.container > div.center > ul > li.next').prev().text()
+  // )
+  return {
+    current_page,
+    last_page,
+    files
+  }
 }
 
 function parseTorrent (html, id) {

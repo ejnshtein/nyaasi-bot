@@ -1,10 +1,11 @@
 const searchKeyboard = require('./search-keyboard')
-// const searchTorrentView = require('./search-torrent-view')
+const searchTorrentView = require('./search-torrent-view')
 const torrentView = require('./torrent-view')
 const { buttons, templates } = require('../lib')
 module.exports = {
   searchKeyboard,
   torrentView,
+  searchTorrentView,
   async searchTorrentKeyboard (query = '', params = {}) {
     const keyboard = await searchKeyboard(query, params)
     keyboard.unshift(

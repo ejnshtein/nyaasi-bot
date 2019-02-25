@@ -32,10 +32,10 @@ composer.on('inline_query', async ctx => {
   if (offset && offset === '1') {
     return ctx.answerInlineQuery([], queryOptions(undefined, query))
   }
-  offset = offset ? Number.parseInt(offset) : 1
+  offset = offset ? Number.parseInt(offset) : 0
   const page = offset ? Math.floor(offset / 75) + 1 : 1
   try {
-    var response = await search(query, { params: { p: page } })
+    var { files: response, current_page, last_page } = await search(query, { params: { p: page } })
     // var response = await searchKeyboard.inlineMode(query, {
     //   page,
     //   offset: offset % 75
@@ -43,12 +43,20 @@ composer.on('inline_query', async ctx => {
   } catch (e) {
     return ctx.answerInlineQuery(sendError(e), queryOptions())
   }
+  // console.log(page, offset, last_page, current_page)
+  if (last_page < current_page) {
+    return ctx.answerInlineQuery([], queryOptions(undefined, query))
+  }
   const results = response
     .slice(offset % 75, offset % 75 + 25)
     .map(torrent => inlineTorrent(torrent, ctx.me))
   ctx.answerInlineQuery(
     results,
-    queryOptions(undefined, query, `${results.length === 25 ? offset + 25 : 1}`)
+    queryOptions(
+      undefined,
+      query,
+      `${results.length === 25 ? offset + 25 : 1}`
+    )
   )
 })
 

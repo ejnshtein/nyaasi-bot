@@ -3,14 +3,15 @@ const { buttons, templates } = require('../lib')
 const { AllHtmlEntities } = require('html-entities')
 const { decode } = new AllHtmlEntities()
 
-module.exports = async (query, page, offset) => {
-  const searchResult = await search(query, {
+module.exports = async (query = '', page = 1, offset = 0) => {
+  const { files: searchResult, current_page, last_page } = await search(query, {
     params: {
       p: page
     }
   })
-  const keyboard = searchResult
+  const slicedTorrents = searchResult
     .slice(offset, offset + 10)
+  const keyboard = slicedTorrents
     .map(el => (
       [
         {
@@ -20,7 +21,7 @@ module.exports = async (query, page, offset) => {
       ]
     ))
   if (offset >= 10) {
-    if (offset < 70) {
+    if (slicedTorrents.length === 10 && offset < 70) {
       keyboard.unshift(
         [
           {
@@ -60,32 +61,29 @@ module.exports = async (query, page, offset) => {
         callback_data: `p=${page - 1}:o=0`
       }
     )
-    pageLine.push(
-      {
-        text: buttons.page.locate(page),
-        callback_data: `p=${page}:o=${offset}`
-      }
-    )
-  } else {
-    pageLine.push(
-      {
-        text: buttons.page.locate(page),
-        callback_data: `p=${page}:o=${offset}`
-      }
-    )
   }
   pageLine.push(
     {
-      text: buttons.page.next(page + 1),
-      callback_data: `p=${page + 1}:o=0`
+      text: buttons.page.locate(page),
+      callback_data: `p=${page}:o=${offset}`
     }
   )
-  pageLine.push(
-    {
-      text: buttons.page.nextDub(page + 2),
-      callback_data: `p=${page + 2}:o=0`
-    }
-  )
+  if (last_page - current_page >= 1) {
+    pageLine.push(
+      {
+        text: buttons.page.next(page + 1),
+        callback_data: `p=${page + 1}:o=0`
+      }
+    )
+  }
+  if (last_page - current_page >= 2) {
+    pageLine.push(
+      {
+        text: buttons.page.nextDub(page + 2),
+        callback_data: `p=${page + 2}:o=0`
+      }
+    )
+  }
   if (page >= 3) {
     pageLine.unshift(
       {
@@ -95,6 +93,10 @@ module.exports = async (query, page, offset) => {
     )
   }
   keyboard.unshift(pageLine)
+  keyboard.unshift([{
+    text: 'Switch to inline',
+    switch_inline_query_current_chat: query
+  }])
   const searchUrl = `https://nyaa.si/?p=${page}&q=${query}`
   return {
     text: templates.searchText(searchUrl, query, page, offset),

@@ -2,7 +2,7 @@
 const Composer = require('telegraf/composer')
 const composer = new Composer()
 const { buttons, buffer } = require('../lib')
-const { torrentView, searchTorrentKeyboard } = require('../generators')
+const { torrentView, searchTorrentView } = require('../generators')
 const { getTorrent } = require('../nyaasi')
 const { onlyPrivate } = require('../middlewares')
 
@@ -32,7 +32,7 @@ composer.start(onlyPrivate, async ctx => {
         break
       case /query:[\S\s]+/i.test(text):
         const query = text.match(/query:([\S\s])+/i)[1]
-        const result = await searchTorrentKeyboard(query)
+        const result = await searchTorrentView(query)
         try {
           await ctx.reply(result.text, result.extra)
           return
