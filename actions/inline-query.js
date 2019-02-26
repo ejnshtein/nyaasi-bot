@@ -29,17 +29,13 @@ composer.inlineQuery(/^torrent:([0-9]+)$/i, async ({ match, me, inlineQuery, ans
 composer.on('inline_query', async ctx => {
   const { query } = ctx.inlineQuery
   let { offset } = ctx.inlineQuery
-  if (offset && offset === '1') {
+  if (offset && offset === '0') {
     return ctx.answerInlineQuery([], queryOptions(undefined, query))
   }
   offset = offset ? Number.parseInt(offset) : 0
   const page = offset ? Math.floor(offset / 75) + 1 : 1
   try {
     var { files: response, current_page, last_page } = await search(query, { params: { p: page } })
-    // var response = await searchKeyboard.inlineMode(query, {
-    //   page,
-    //   offset: offset % 75
-    // })
   } catch (e) {
     return ctx.answerInlineQuery(sendError(e), queryOptions())
   }
@@ -50,14 +46,18 @@ composer.on('inline_query', async ctx => {
   const results = response
     .slice(offset % 75, offset % 75 + 25)
     .map(torrent => inlineTorrent(torrent, ctx.me))
-  ctx.answerInlineQuery(
-    results,
-    queryOptions(
-      undefined,
-      query,
-      `${results.length === 25 ? offset + 25 : 1}`
+  try {
+    await ctx.answerInlineQuery(
+      results,
+      queryOptions(
+        undefined,
+        query,
+        `${results.length === 25 ? offset + 25 : 0}`
+      )
     )
-  )
+  } catch (e) {
+    return ctx.answerInlineQuery(sendError(e), queryOptions(undefined, undefined, '0'))
+  }
 })
 
 module.exports = app => {
@@ -101,9 +101,9 @@ function sendError (error) {
       type: 'article',
       id: '1',
       title: 'Error!',
-      description: 'Something went wrong. Try again later, or change request query.',
+      description: `Something went wrong... ${error.description}`,
       input_message_content: {
-        message_text: `Error!\n\nSomething went wrong. Try again later, or change request query.`
+        message_text: `Something went wrong... ${error.description}`
       }
     }
   ]
