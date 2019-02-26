@@ -9,32 +9,32 @@ function parseSearch (html) {
     const select = cheerio.load(el)
     return {
       id: Number.parseInt(
-        select('td:nth-child(2) a:last-of-type')
+        select('td:nth-child(2) > a')
           .attr('href')
-          .replace('/view/', '')
+          .split('/').pop()
       ),
       category: {
-        label: select('td:nth-child(1) a').attr('title'),
-        code: select('td:nth-child(1) a')
-          .attr('href')
-          .match(/c=(\S+)/i)[1]
+        label: select('td:nth-child(1) > a').attr('title'),
+        code: new URL(
+          select('td:nth-child(1) > a').attr('href'), 'https://nyaa.si'
+        ).searchParams.get('c')
       },
-      name: select('td:nth-child(2) a:last-of-type').html(),
-      title: select('td:nth-child(2) a:last-of-type').html(),
+      name: select('td:nth-child(2) > a').text(),
+      title: select('td:nth-child(2) > a').text(),
       links: {
-        page: select('td:nth-child(2) a:last-of-type').attr('href'),
-        file: select('td:nth-child(3) a:first-of-type').attr('href'),
-        magnet: select('td:nth-child(3) a:last-of-type').attr('href')
+        page: select('td:nth-child(2) > a').attr('href'),
+        file: select('td:nth-child(3) > a').attr('href'),
+        magnet: select('td:nth-child(3) > a:last-of-type').attr('href')
       },
-      fileSize: select('td:nth-child(4)').html(),
-      fileSizeBytes: bytes.parse(select('td:nth-child(4)').html()),
+      fileSize: select('td:nth-child(4)').text(),
+      fileSizeBytes: bytes.parse(select('td:nth-child(4)').text()),
       timestamp: Number.parseInt(
         select('td:nth-child(5)')
           .attr('data-timestamp')
       ),
-      seeders: select('td:nth-child(6)').html(),
-      leechers: select('td:nth-child(7)').html(),
-      completed: select('td:nth-child(8)').html(),
+      seeders: select('td:nth-child(6)').text(),
+      leechers: select('td:nth-child(7)').text(),
+      completed: select('td:nth-child(8)').text(),
       entry: getEntry(el.attribs['class'])
     }
   }).get()
@@ -48,12 +48,6 @@ function parseSearch (html) {
       ? new URL(page('body > div.container > div.center > nav > ul > li:last-of-type').prev().children('a').attr('href'), 'https://nyaa.si').searchParams.get('p')
       : new URL(page('body > div.container > div.center > ul > li.next').prev().children('a').attr('href'), 'https://nyaa.si').searchParams.get('p')
   ) || 1
-  // console.log(
-  //   page('body > div.container > div.center > nav > ul').html(),
-  //   page('body > div.container > div.center > ul').html(),
-  //   page('body > div.container > div.center > ul > li.active').text(),
-  //   page('body > div.container > div.center > ul > li.next').prev().text()
-  // )
   return {
     current_page,
     last_page,

@@ -79,11 +79,13 @@ module.exports = async (id, query = '', history = 'p=1:o=0', publicMessage = fal
   // }
   return {
     torrent,
-    text: templates.torrent.view(
-      id,
-      torrent,
-      `https://nyaa.si/?q=${query}`
-    ),
+    text: publicMessage
+      ? templates.torrent.inlineQuery(torrent)
+      : templates.torrent.view(
+        id,
+        torrent,
+        `https://nyaa.si/?q=${query}`
+      ),
     extra: {
       reply_markup: {
         inline_keyboard: keyboard
