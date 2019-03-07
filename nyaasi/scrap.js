@@ -115,15 +115,13 @@ function getEntry (entry) {
 function parseTorrentFiles (html) {
   const select = cheerio.load(html)
 
-  return select('ul > li').map((i, el) => {
-    const element = cheerio(el)
-    if (element.children('a.folder').text()) {
-      return {
-        type: 'folder',
-        title: element.children('a.folder').text(),
-        folder: parseTorrentFiles(element.html())
-      }
-    } else {
+  return select('ul')
+    .find('li')
+    .not(function () {
+      return cheerio(this).children('a').attr('class') === 'folder'
+    })
+    .map((i, el) => {
+      const element = cheerio(el)
       const size = element.children('span.file-size').text().replace(/\(|\)/ig, '')
       return {
         type: 'file',
@@ -131,6 +129,5 @@ function parseTorrentFiles (html) {
         size: size,
         sizeBytes: bytes.parse(size)
       }
-    }
-  }).get()
+    }).get()
 }
