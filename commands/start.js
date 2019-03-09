@@ -50,12 +50,13 @@ composer.start(onlyPrivate, async ctx => {
                 [
                   {
                     text: buttons.back,
-                    callback_data: `t=${id}:p=1:o=0`
+                    callback_data: `t=${mid}:p=1:o=0`
                   }
                 ]
               ]
             }
           })
+          return
         } catch (e) {}
         break
     }
