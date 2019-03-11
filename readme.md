@@ -6,6 +6,20 @@ It's my implementation of bot for [nyaa.si](https://nyaa.si) in [telegram](https
 Bot in telegram - [nyaa.si bot](https://t.me/nyaasi_bot)  
 RSS channel - [Nyaa.si](https://t.me/nyaasi)  
 
+## Features
+
+- Search on nyaa.si
+- Full torrent information
+- Download `.torrent` file right in telegram chat
+- Magnet links too
+- Share torrent in other chats
+
+## In progress
+
+- Download torrent files up to 50 mb in Telegram
+- Download torrent files up to 1.5 gb in Telegram
+- Custom RSS feed (?)
+
 ## Commands
 
 Use `/index` or `/search` to access nyaa.si index page or `/search <text to search>` to search something on nyaa.si.  
