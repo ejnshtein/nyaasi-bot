@@ -1,7 +1,7 @@
 # nyaa.si bot
 
 [![telegram chat](https://img.shields.io/badge/telegram-chat-blue.svg)](https://t.me/nyaasi_chat)
-[![nyaa.si bot](https://img.shields.io/badge/nyaa.si-bot-blue.svg)](https://t.me/nyaasi_bot)  
+[![nyaa.si bot](https://img.shields.io/badge/nyaa.si-bot-blue.svg)](https://t.me/nyaasi_bot)
 [![telegram channel](https://img.shields.io/badge/telegram-channel-blue.svg)](https://t.me/nyaasi)  
 It's my implementation of bot for [nyaa.si](https://nyaa.si) in [telegram](https://telegram.org) powered by [Telegraf](https://github.com/telegraf/telegraf).  
 Bot in telegram - [nyaa.si bot](https://t.me/nyaasi_bot)  
