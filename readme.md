@@ -17,7 +17,6 @@ RSS channel - [Nyaa.si](https://t.me/nyaasi)
 
 ## In progress
 
-- Download torrent files up to 50 mb in Telegram
 - Download torrent files up to 1.5 gb in Telegram
 - Custom RSS feed (?)
 
