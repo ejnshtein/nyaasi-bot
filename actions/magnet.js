@@ -4,10 +4,14 @@ const { buttons, loadSearchParams } = require('../lib')
 const { getTorrent } = require('../nyaasi')
 
 composer.action(/^magnet=([0-9]+):p=(\S+):o=(\S+)/i, async ctx => {
-  ctx.answerCbQuery('')
   const { value } = loadSearchParams(ctx.callbackQuery.message)
   const searchUrl = `https://nyaa.si/?p=${ctx.match[2]}${value ? `&q=${value}` : ''}`
-  const torrent = await getTorrent(ctx.match[1])
+  try {
+    var torrent = await getTorrent(ctx.match[1])
+  } catch (e) {
+    return ctx.answerCbQuery(`Something went wrong...\n\n${e.message}`, true)
+  }
+  ctx.answerCbQuery('')
   let messageText = `${torrent.title}\n`
   messageText += `<code>${torrent.links.magnet}</code><a href="${searchUrl}">&#8203;</a>`
   ctx.editMessageText(messageText, {
@@ -15,6 +19,12 @@ composer.action(/^magnet=([0-9]+):p=(\S+):o=(\S+)/i, async ctx => {
     disable_web_page_preview: true,
     reply_markup: {
       inline_keyboard: [
+        [
+          {
+            text: 'Open magnet',
+            url: `https://nyaasi.herokuapp.com/magnet/${torrent.links.magnet}`
+          }
+        ],
         [
           {
             text: buttons.back,

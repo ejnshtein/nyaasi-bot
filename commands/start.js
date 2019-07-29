@@ -1,64 +1,121 @@
-/* eslint no-case-declarations: 0, no-empty: 0 */
 const Composer = require('telegraf/composer')
+const path = require('path')
 const composer = new Composer()
-const { buttons, buffer } = require('../lib')
+const { buttons, buffer, sendFile, sleep } = require('../lib')
 const { torrentView, searchTorrentView } = require('../generators')
 const { getTorrent } = require('../nyaasi')
 const { onlyPrivate } = require('../middlewares')
 
-composer.start(onlyPrivate, async ctx => {
-  if (ctx.startPayload) {
-    const text = buffer.decode(ctx.startPayload)
-    switch (true) {
-      case /download:[0-9]+/i.test(text):
-        const torrentId = text.match(/download:([0-9]+)/i)[1]
-        try {
-          await ctx.replyWithDocument({
-            url: `https://nyaa.si/download/${torrentId}.torrent`,
-            filename: `${torrentId}.torrent`
-          })
-          return
-        } catch (e) {}
-        break
-      case /^\b(view|torrent):([0-9]+)$/i.test(text):
-        const id = text.match(/^\b(view|torrent):([0-9]+)/i)[2]
-        const torrent1 = await torrentView(id, '')
-        try {
-          await ctx.reply(torrent1.text, torrent1.extra)
-          return
-        } catch (e) {
-          console.log(JSON.stringify(e))
-        }
-        break
-      case /query:[\S\s]+/i.test(text):
-        const query = text.match(/query:([\S\s])+/i)[1]
-        const result = await searchTorrentView(query)
-        try {
-          await ctx.reply(result.text, result.extra)
-          return
-        } catch (e) {}
-        break
-      case /magnet:[0-9]+/i.test(text):
-        const mid = text.match(/magnet:([0-9]+)/i)[1]
-        const torrent = await getTorrent(mid)
-        try {
-          await ctx.reply(`<a href="https://nyaa.si/">&#8203;</a>${torrent.title}\n<code>${torrent.links.magnet}</code>`, {
-            parse_mode: 'HTML',
-            disable_web_page_preview: true,
+class StartHandler {
+  constructor (ctx) {
+    this.ctx = ctx
+  }
+
+  async download (id) {
+    await this.ctx.replyWithDocument({
+      url: `https://nyaa.si/download/${id}.torrent`,
+      filename: `${id}.torrent`
+    })
+  }
+
+  async view (id) {
+    const torrent1 = await torrentView(id, '')
+    await this.ctx.reply(torrent1.text, torrent1.extra)
+  }
+
+  async query (query) {
+    const result = await searchTorrentView(query)
+    await this.ctx.reply(result.text, result.extra)
+  }
+
+  async magnet (id) {
+    const torrent = await getTorrent(id)
+    await this.ctx.reply(`<a href="https://nyaa.si/">&#8203;</a>${torrent.title}\n<code>${torrent.links.magnet}</code>`, {
+      parse_mode: 'HTML',
+      disable_web_page_preview: true,
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: buttons.back,
+              callback_data: `t=${id}:p=1:o=0`
+            }
+          ]
+        ]
+      }
+    })
+  }
+
+  async file (torrentId, fileId) {
+    const dbTorrent = await this.ctx.db('torrents').findOne({ id: torrentId }).exec()
+    if (dbTorrent && dbTorrent.files.length) {
+      const file = dbTorrent.files.find(file => file.id === fileId)
+      if (file) {
+        await sendFile(
+          this.ctx.chat.id,
+          file,
+          this.ctx.telegram,
+          {
+            caption: `#nyaa${torrentId} ${file.id} of ${dbTorrent.files.length}\n"${path.basename(file.caption)}"`,
             reply_markup: {
               inline_keyboard: [
                 [
                   {
-                    text: buttons.back,
-                    callback_data: `t=${mid}:p=1:o=0`
+                    text: 'Torrent view',
+                    url: `https://t.me/${this.ctx.me}?start=${buffer.encode(`view:${torrentId}`)}`
                   }
                 ]
               ]
             }
-          })
-          return
+          }
+        )
+      } else {
+        await this.ctx.reply('File not found')
+      }
+    }
+  }
+}
+
+composer.start(onlyPrivate, async ctx => {
+  if (ctx.startPayload) {
+    const text = buffer.decode(ctx.startPayload)
+    const start = new StartHandler(ctx)
+    switch (true) {
+      case /download:[0-9]+/i.test(text):
+        const torrentId = text.split(':').pop()
+        try {
+          await start.download(torrentId)
+          return 
         } catch (e) {}
         break
+      case /^\b(view|torrent):([0-9]+)$/i.test(text):
+        const vid = text.split(':').pop()
+        try {
+          await start.view(vid)
+          return 
+        } catch (e) {}
+        break
+      case /query:[\S\s]+/i.test(text):
+        const query = text.match(/query:([\S\s])+/i)[1]
+        try {
+          await start.query(query)
+          return 
+        } catch (e) {}
+        break
+      case /magnet:[0-9]+/i.test(text):
+        const mid = text.split(':').pop()
+        try {
+          await start.magnet(mid)
+          return 
+        } catch (e) {}
+        break
+      case /file:[0-9]+:[0-9]+/i.test(text):
+        const splitted = text.split(':')
+        const fileId = splitted.pop()
+        const tId = splitted.pop()
+        try {
+          await start.file(Number(tId), Number(fileId))
+        } catch (e) {}
     }
   }
   ctx.reply(`I'm nyaa.si website bot and i can help you to find some torrents on nyaa.si right here, in our beautiful Telegram!`, {

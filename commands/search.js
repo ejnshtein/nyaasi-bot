@@ -8,7 +8,11 @@ composer.hears(
   onlyPrivate,
   async ({ reply, match }) => {
     const query = match[1]
-    const { text, extra } = await searchTorrentView(query)
+    try {
+      var { text, extra } = await searchTorrentView(query)
+    } catch (e) {
+      return reply(`Something went wrong...\n\n${e.message}`)
+    }
     reply(text, extra)
   })
 
@@ -16,7 +20,11 @@ composer.command(
   ['index', 'search'],
   onlyPrivate,
   async ({ reply }) => {
-    const { text, extra } = await searchTorrentView()
+    try {
+      var { text, extra } = await searchTorrentView()
+    } catch (e) {
+      return reply(`Something went wrong...\n\n${e.message}`)
+    }
     reply(text, extra)
   })
 

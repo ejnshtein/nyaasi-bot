@@ -48,6 +48,21 @@ const collections = [
         type: [Number],
         required: true,
         default: []
+      },
+      allow_torrent_download: {
+        type: Boolean,
+        default: false,
+        required: true
+      },
+      allow_get_torrent_files: {
+        type: Boolean,
+        default: false,
+        required: true
+      },
+      is_admin: {
+        type: Boolean,
+        default: false,
+        required: true
       }
     })
   },
@@ -58,33 +73,143 @@ const collections = [
         type: Number,
         unique: true
       },
-      name: String,
-      type: String,
-      document: {
-        type: Object,
-        required: false
+      title: String,
+      category: [
+        new Schema({
+          title: String,
+          code: String
+        }, {
+          _id: false,
+          versionKey: false
+        })
+      ],
+      entry: {
+        type: String,
+        required: false,
+        default: 'default' // 'success', 'danger'
       },
-      video: {
-        type: Object,
-        required: false
+      links: {
+        torrent: String,
+        magnet: String
       },
-      audio: {
-        type: Object,
-        required: false
+      files: {
+        type: [
+          new Schema({
+            id: { // local file id for this torrent
+              type: Number,
+              required: true
+            },
+            type: { // 'document', 'video', 'photo', 'audio'
+              type: String,
+              required: true
+            },
+            file_id: {
+              type: String,
+              required: true
+            },
+            caption: {
+              type: String,
+              required: true
+            }
+          }, {
+            _id: false,
+            versionKey: false
+          })
+        ],
+        required: false,
+        default: []
       },
-      animation: {
-        type: Object,
-        required: false
+      status: { // 'pending', 'empty', 'uploaded', 'fileserror', 'error'
+        type: String,
+        required: true,
+        default: 'empty'
       },
-      photo: {
-        type: Schema.Types.Mixed,
-        required: false
-      }
+      status_text: { // short description of *status* field, used for errors
+        type: String,
+        required: true,
+        default: 'all fine' // if 'fileserror': 'Size of some of files is bigger than 1.5gb.',
+        // 'Too many files. Max 14', 'Upload error', 'Download error', 'We dont know what happend ¯\_(ツ)_/¯'
+      },
+      is_finished: {
+        type: Boolean,
+        default: false
+      },
+      submitter: {
+        name: {
+          type: String,
+          default: 'Anonymous'
+        },
+        link: {
+          type: String,
+          require: false
+        }
+      },
+      timestamp: String,
+      info: String,
+      info_hash: String
     }, {
       timestamps: {
         createdAt: 'created_at',
         updatedAt: 'updated_at'
       }
+    })
+  },
+  {
+    name: 'servers',
+    schema: new Schema({
+      id: {
+        type: Number,
+        unique: true,
+        default: 1
+      },
+      torrents: [
+        new Schema({
+          id: Number,
+          files: [
+            new Schema({
+              id: {
+                type: String,
+                default: '',
+                required: true
+              },
+              done: {
+                type: Boolean,
+                default: false
+              },
+              path: String,
+              name: String,
+              total_bytes: {
+                type: Number,
+                default: 0
+              },
+              uploaded_bytes: {
+                type: Number,
+                default: 0
+              },
+              downloaded_bytes: {
+                type: Number,
+                default: 0
+              },
+              is_downloading_active: {
+                type: Boolean,
+                default: false
+              },
+              is_downloading_completed: {
+                type: Boolean,
+                default: false
+              },
+              is_uploading_active: {
+                type: Boolean,
+                default: false
+              },
+              is_uploading_completed: {
+                type: Boolean,
+                default: false
+              }
+            })
+          ]
+        })
+      ]
     })
   }
 ]

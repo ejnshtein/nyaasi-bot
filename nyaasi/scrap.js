@@ -20,7 +20,7 @@ function parseSearch (html) {
         ).searchParams.get('c')
       },
       name: select('td:nth-child(2) > a').text(),
-      title: select('td:nth-child(2) > a').text(),
+      title: select('td:nth-child(2) > a').text().trim(),
       links: {
         page: select('td:nth-child(2) > a').attr('href'),
         file: select('td:nth-child(3) > a').attr('href'),
@@ -59,7 +59,7 @@ function parseTorrent (html, id) {
   const select = cheerio.load(html)
   return {
     id: typeof id === 'string' ? Number.parseInt(id) : id,
-    title: select('body > div.container > div:nth-child(1) > div.panel-heading > h3').text(),
+    title: select('body > div.container > div:nth-child(1) > div.panel-heading > h3').text().trim(),
     fileSize: select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(4) > div:nth-child(2)').html(),
     fileSizeBytes: bytes.parse(select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(4) > div:nth-child(2)').html()),
     category: select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(1) > div:nth-child(2)')
@@ -92,7 +92,7 @@ function parseTorrent (html, id) {
     seeders: select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(2) > div:nth-child(4) > span').html(),
     leechers: select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(3) > div:nth-child(4) > span').html(),
     completed: select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(4) > div:nth-child(4)').html(),
-    files: parseTorrentFiles(select('body > div.container > div:nth-child(3) > div.torrent-file-list.panel-body').html())
+    // files: parseTorrentFiles(select('body > div.container > div:nth-child(3) > div.torrent-file-list.panel-body').html())
   }
 }
 
@@ -127,7 +127,7 @@ function parseTorrentFiles (html) {
         type: 'file',
         title: element.text().replace(` (${size})`, ''),
         size: size,
-        sizeBytes: bytes.parse(size)
+        sizeBytes: bytes.parse(size.replace('Bytes', ''))
       }
     }).get()
 }

@@ -1,82 +1,73 @@
 const { getTorrent } = require('../nyaasi')
-// const { AllHtmlEntities } = require('html-entities')
-// const { decode } = new AllHtmlEntities()
 const { templates, buttons, buffer } = require('../lib')
-// const collection = require('../core/database')
+const collection = require('../core/database')
+const querystring = require('querystring')
 
-module.exports = async (id, query = '', history = 'p=1:o=0', publicMessage = false, me) => {
+module.exports = async (id, query = '', history = 'p=1:o=0', publicMessage = false, me, allowGetFiles = false, canDownloadTorrent = false) => {
   const torrent = await getTorrent(id)
-  // console.log(JSON.stringify(torrent.files))
-  let keyboard
-  if (publicMessage) {
-    keyboard = [
-      [
-        {
-          text: buttons.torrent.download,
-          url: `https://t.me/${me}?start=${buffer.encode(`download:${id}`)}`
-        }, {
-          text: buttons.torrent.magnet,
-          url: `https://t.me/${me}?start=${buffer.encode(`magnet:${id}`)}`
-        },
-        {
-          text: 'Full view',
-          url: `https://t.me/${me}?start=${buffer.encode(`view:${id}`)}`
-        }
-      ]
+  const DbTorrent = await collection('torrents').findOne({ id: torrent.id }).exec()
+  const keyboard = publicMessage ? [
+    [
+      {
+        text: buttons.torrent.download,
+        url: `https://t.me/${me}?start=${buffer.encode(`download:${id}`)}`
+      }, {
+        text: buttons.torrent.magnet,
+        url: `https://t.me/${me}?start=${buffer.encode(`magnet:${id}`)}`
+      },
+      {
+        text: 'Full view',
+        url: `https://t.me/${me}?start=${buffer.encode(`view:${id}`)}`
+      }
     ]
-  } else {
-    keyboard = [
-      [
-        {
-          text: buttons.torrent.download,
-          callback_data: `d=${id}`
-        }, {
-          text: buttons.torrent.magnet,
-          callback_data: `magnet=${id}:${history}`
-        },
-        {
-          text: buttons.share,
-          switch_inline_query: `torrent:${id}`
-        }
-      ],
-      [
-        {
-          text: buttons.back,
-          callback_data: history
-        },
-        {
-          text: buttons.page.refresh,
-          callback_data: `t=${id}:${history}`
-        }
-      ]
+  ] : [
+    [
+      {
+        text: buttons.torrent.download,
+        callback_data: `d=${id}`
+      }, {
+        text: buttons.torrent.magnet,
+        callback_data: `magnet=${id}:${history}`
+      },
+      {
+        text: buttons.share,
+        switch_inline_query: `torrent:${id}`
+      }
+    ],
+    [
+      {
+        text: buttons.back,
+        callback_data: history
+      },
+      {
+        text: buttons.page.refresh,
+        callback_data: `t=${id}:${history}`
+      }
     ]
+  ]
+  if (allowGetFiles) {
+    if (canDownloadTorrent) {
+      keyboard.push(
+        [
+          {
+            text: DbTorrent && DbTorrent.status === 'uploaded' ? 'Get Files' : 'Download files to Telegram',
+            callback_data: DbTorrent && DbTorrent.status === 'uploaded'
+              ? `files:${querystring.stringify({ i: id, n: 1 })}`
+              : `getfiles=${id}`
+          }
+        ]
+      )
+    } else if (DbTorrent && DbTorrent.status === 'uploaded') {
+      keyboard.push(
+        [
+          {
+            text: 'Get Files',
+            callback_data: `files:${querystring.stringify({ i: id, n: 1 })}`
+          }
+        ]
+      )
+    }
   }
-  // console.log(getFile(torrent))
-  // console.log(countFiles(torrent))
-  // const downloadedTorrent = await collection('torrents').findOne({ id: torrent.id }).exec()
-  // if (downloadedTorrent) {
-  //   keyboard.push(
-  //     [
-  //       {
-  //         text: 'Get File',
-  //         callback_data: `torrentdownload=${id}:client=bot`
-  //       }
-  //     ]
-  //   )
-  // } else if (
-  //   torrent.fileSizeBytes - 0.5e7 < 5e7
-  //     && countFiles(torrent) === 1
-  //     && getFile(torrent) === 'file'
-  // ) {
-  //   keyboard.push(
-  //     [
-  //       {
-  //         text: 'Download file to Telegram',
-  //         callback_data: `torrentdownload=${id}:client=bot`
-  //       }
-  //     ]
-  //   )
-  // }
   return {
     torrent,
     text: publicMessage

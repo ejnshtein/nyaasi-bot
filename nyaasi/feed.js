@@ -1,7 +1,7 @@
 const RssParser = require('rss-parser')
 const { buffer } = require('../lib')
 const { scheduleJob } = require('node-schedule')
-const { parseURL } = new RssParser({
+const parser = new RssParser({
   customFields: {
     item: [
       'nyaa:seeders',
@@ -32,7 +32,7 @@ const feed = {
 })()
 
 async function loadFeed () {
-  const data = await parseURL('https://nyaa.si/?page=rss')
+  const data = await parser.parseURL('https://nyaa.si/?page=rss')
   data.items.forEach(el => {
     el.id = Number.parseInt(el.guid.split('/').pop())
   })
@@ -63,7 +63,7 @@ module.exports = bot => {
       reply_markup: {
         inline_keyboard: [
           [{
-            text: 'Open view',
+            text: 'Open torrent',
             url: `https://t.me/${bot.options.username}?start=${buffer.encode(`view:${post.id}`)}`
           }]
         ]

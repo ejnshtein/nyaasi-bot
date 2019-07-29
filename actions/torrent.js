@@ -9,10 +9,19 @@ composer.action([
 ], async ctx => {
   ctx.answerCbQuery('')
   const { value } = loadSearchParams(ctx.callbackQuery.message)
+  const { user } = ctx.state
   try {
-    var { text, extra } = await torrentView(ctx.match[1], value, ctx.match[2])
+    var { text, extra } = await torrentView(
+      ctx.match[1],
+      value,
+      ctx.match[2],
+      undefined,
+      undefined,
+      user.allow_get_torrent_files,
+      user.allow_torrent_download
+    )
   } catch (e) {
-    return ctx.answerCbQuery('Something went wrong...')
+    return ctx.answerCbQuery(`Something went wrong...\n\n${e.message}`, true)
   }
   ctx.editMessageText(text, extra)
 })
