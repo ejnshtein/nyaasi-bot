@@ -37,6 +37,12 @@ class StartHandler {
         inline_keyboard: [
           [
             {
+              text: 'Open magnet',
+              url: `https://nyaasi.herokuapp.com/magnet/${torrent.links.magnet}`
+            }
+          ],
+          [
+            {
               text: buttons.back,
               callback_data: `t=${id}:p=1:o=0`
             }

@@ -80,7 +80,7 @@ function inlineTorrent (torrent, me) {
         [
           {
             text: buttons.torrent.magnet,
-            url: `https://t.me/${me}?start=${buffer.encode(`magnet:${torrent.id}`)}`
+            url: `https://nyaasi.herokuapp.com/magnet/${torrent.links.magnet}`
           }, {
             text: buttons.torrent.download,
             url: `https://t.me/${me}?start=${buffer.encode(`download:${torrent.id}`)}`
