@@ -1,3 +1,7 @@
+if (!process.env.REDIS_URL) {
+  return
+}
+
 const Queue = require('bee-queue')
 const { Telegram } = require('telegraf')
 const telegram = new Telegram(process.env.BOT_TOKEN)

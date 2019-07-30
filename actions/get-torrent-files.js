@@ -1,3 +1,8 @@
+if (!process.env.REDIS_URL) {
+  module.exports = app => {}
+  return
+}
+
 const Composer = require('telegraf/composer')
 const composer = new Composer()
 const { getTorrent } = require('../nyaasi')
