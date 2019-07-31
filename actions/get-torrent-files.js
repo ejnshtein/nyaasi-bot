@@ -73,6 +73,7 @@ composer.action(
     )
     try {
       torrentInDb.status = 'pending'
+      torrentInDb.markModified('status')
       await torrentInDb.save()
     } catch (e) {
       console.log(e)
