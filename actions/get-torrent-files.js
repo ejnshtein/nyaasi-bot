@@ -72,9 +72,7 @@ composer.action(
       `Torrent added to queue!`
     )
     try {
-      torrentInDb.status = 'pending'
-      torrentInDb.markModified('status')
-      await torrentInDb.save()
+      await ctx.db('torrents').updateOne({ id: torrent.id }, { $set: { status: 'pending' }}).exec()
     } catch (e) {
       console.log(e)
       return ctx.reply(`Something went wrong...\n\n${e.message}`)
