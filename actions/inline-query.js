@@ -113,7 +113,7 @@ function queryOptions (switchPmText = 'Continue searching...', query = '', offse
   return Object.assign({},
     switchPmText ? {
       switch_pm_text: switchPmText,
-      switch_pm_parameter: `${buffer.encode(`query:${query.substr(0, 64)}`)}`
+      switch_pm_parameter: `${buffer.encode(`query:${query.substr(0, 40)}`)}`
     } : {},
     offset ? {
       next_offset: offset
