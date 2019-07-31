@@ -31,7 +31,7 @@ torrentQueue
       `Torrent uploading error: ${err.message}${
         isFileError
           ? ''
-          : `\nContact <a href="https://t.me/ejnshtein">admin</a> about this error and forward him this message.\n\n${err.stack}`}`,
+          : `\nContact <a href="https://t.me/ejnshtein">admin</a> about this error and forward him this message.`}`,
       {
         parse_mode: 'HTML'
       }
