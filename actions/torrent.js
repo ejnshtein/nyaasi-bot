@@ -7,7 +7,6 @@ composer.action([
   /^v=(\S+?):(\S+)$/i,
   /^t=(\S+?):(\S+)$/i
 ], async ctx => {
-  ctx.answerCbQuery('')
   const { value } = loadSearchParams(ctx.callbackQuery.message)
   const { user } = ctx.state
   try {
@@ -23,6 +22,7 @@ composer.action([
   } catch (e) {
     return ctx.answerCbQuery(`Something went wrong...\n\n${e.message}`, true)
   }
+  ctx.answerCbQuery('')
   ctx.editMessageText(text, extra)
 })
 

@@ -1,7 +1,7 @@
 const Composer = require('telegraf/composer')
 const composer = new Composer()
 const { AllHtmlEntities } = require('html-entities')
-const { buttons, templates, buffer } = require('../lib')
+const { buttons, templates, buffer, getXtFromMagnet } = require('../lib')
 const { decode } = new AllHtmlEntities()
 const { getTorrent, search } = require('../nyaasi')
 
@@ -80,7 +80,7 @@ function inlineTorrent (torrent, me) {
         [
           {
             text: buttons.torrent.magnet,
-            url: `https://nyaasi.herokuapp.com/magnet/${torrent.links.magnet}`
+            url: `${process.env.MAGNET_REDIRECT_HOST}/nyaamagnet/${getXtFromMagnet(torrent.links.magnet)}`
           }, {
             text: buttons.torrent.download,
             url: `https://t.me/${me}?start=${buffer.encode(`download:${torrent.id}`)}`

@@ -1,6 +1,6 @@
 const Composer = require('telegraf/composer')
 const composer = new Composer()
-const { buttons, loadSearchParams } = require('../lib')
+const { buttons, loadSearchParams, getXtFromMagnet } = require('../lib')
 const { getTorrent } = require('../nyaasi')
 
 composer.action(/^magnet=([0-9]+):p=(\S+):o=(\S+)/i, async ctx => {
@@ -22,7 +22,7 @@ composer.action(/^magnet=([0-9]+):p=(\S+):o=(\S+)/i, async ctx => {
         [
           {
             text: 'Open magnet',
-            url: `https://nyaasi.herokuapp.com/magnet/${torrent.links.magnet}`
+            url: `${process.env.MAGNET_REDIRECT_HOST}/nyaamagnet/${getXtFromMagnet(torrent.links.magnet)}`
           }
         ],
         [

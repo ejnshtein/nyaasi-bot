@@ -1,5 +1,5 @@
 const { getTorrent } = require('../nyaasi')
-const { templates, buttons, buffer } = require('../lib')
+const { templates, buttons, buffer, getXtFromMagnet } = require('../lib')
 const collection = require('../core/database')
 const querystring = require('querystring')
 
@@ -13,7 +13,7 @@ module.exports = async (id, query = '', history = 'p=1:o=0', publicMessage = fal
         url: `https://t.me/${me}?start=${buffer.encode(`download:${id}`)}`
       }, {
         text: buttons.torrent.magnet,
-        url: `https://t.me/${me}?start=${buffer.encode(`magnet:${id}`)}`
+        url: `${process.env.MAGNET_REDIRECT_HOST}/nyaamagnet/${getXtFromMagnet(torrent.links.magnet)}`
       },
       {
         text: 'Full view',
@@ -27,7 +27,7 @@ module.exports = async (id, query = '', history = 'p=1:o=0', publicMessage = fal
         callback_data: `d=${id}`
       }, {
         text: buttons.torrent.magnet,
-        callback_data: `magnet=${id}:${history}`
+        url: `${process.env.MAGNET_REDIRECT_HOST}/nyaamagnet/${getXtFromMagnet(torrent.links.magnet)}`
       },
       {
         text: buttons.share,
