@@ -1,6 +1,8 @@
 const RssParser = require('rss-parser')
 const { buffer } = require('../lib')
 const { scheduleJob } = require('node-schedule')
+const { AllHtmlEntities } = require('html-entities')
+const { decode } = new AllHtmlEntities()
 const parser = new RssParser({
   customFields: {
     item: [
@@ -55,7 +57,11 @@ module.exports = bot => {
   })
 
   async function sendMessage (post) {
-    let messageText = `<b>${post.title}</b>\n`
+    let messageText = `<b>${decode(post.title)
+      .replace(/</gi, '&lt;')
+      .replace(/>/gi, '&gt;')
+      .replace(/&/gi, '&amp;')}
+        </b>\n`
     messageText += `${post['nyaa:size']} | <a href="${post.link}">Download</a> | <a href="${post.guid}">View</a>\n`
     messageText += `#c${post['nyaa:categoryId']} <a href="https://nyaa.si/?c=${post['nyaa:categoryId']}">${post['nyaa:category']}</a>`
     await telegram.sendMessage(process.env.CHANNEL_ID, messageText, {
