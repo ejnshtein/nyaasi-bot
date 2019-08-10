@@ -60,8 +60,7 @@ module.exports = bot => {
     let messageText = `<b>${decode(post.title)
       .replace(/</gi, '&lt;')
       .replace(/>/gi, '&gt;')
-      .replace(/&/gi, '&amp;')}
-        </b>\n`
+      .replace(/&/gi, '&amp;')}</b>\n`
     messageText += `${post['nyaa:size']} | <a href="${post.link}">Download</a> | <a href="${post.guid}">View</a>\n`
     messageText += `#c${post['nyaa:categoryId']} <a href="https://nyaa.si/?c=${post['nyaa:categoryId']}">${post['nyaa:category']}</a>`
     await telegram.sendMessage(process.env.CHANNEL_ID, messageText, {
