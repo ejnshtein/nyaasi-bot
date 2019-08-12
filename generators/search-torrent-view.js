@@ -99,7 +99,12 @@ module.exports = async (query = '', page = 1, offset = 0) => {
   }])
   const searchUrl = `https://nyaa.si/?p=${page}&q=${query}`
   return {
-    text: templates.searchText(searchUrl, query, page, offset),
+    text: templates.searchText(
+      searchUrl,
+      query,
+      page,
+      offset
+    ),
     extra: {
       reply_markup: {
         inline_keyboard: keyboard
