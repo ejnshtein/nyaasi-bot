@@ -1,5 +1,5 @@
 const RssParser = require('rss-parser')
-const { buffer } = require('../lib')
+const { buffer, buttons } = require('../lib')
 const { scheduleJob } = require('node-schedule')
 const { AllHtmlEntities } = require('html-entities')
 const { decode } = new AllHtmlEntities()
@@ -67,10 +67,16 @@ module.exports = bot => {
       parse_mode: 'HTML',
       reply_markup: {
         inline_keyboard: [
-          [{
-            text: 'Open torrent',
-            url: `https://t.me/${bot.options.username}?start=${buffer.encode(`view:${post.id}`)}`
-          }]
+          [
+            {
+              text: buttons.torrent.magnet,
+              url: `${process.env.MAGNET_REDIRECT_HOST}/nyaamagnet/urn:btih:${post['nyaa:infoHash']}`
+            },
+            {
+              text: 'Open torrent',
+              url: `https://t.me/${bot.options.username}?start=${buffer.encode(`view:${post.id}`)}`
+            }
+          ]
         ]
       },
       disable_web_page_preview: true

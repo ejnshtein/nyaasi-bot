@@ -101,9 +101,9 @@ function sendError (error) {
       type: 'article',
       id: '1',
       title: 'Error!',
-      description: `Something went wrong... ${error.description}`,
+      description: `Something went wrong... ${error.message}`,
       input_message_content: {
-        message_text: `Something went wrong... ${error.description}`
+        message_text: `Something went wrong... ${error.message}`
       }
     }
   ]

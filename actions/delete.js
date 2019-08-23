@@ -5,10 +5,9 @@ composer.action(/^delete$/i, async ctx => {
   try {
     await ctx.deleteMessage()
   } catch (e) {
-    await ctx.answerCbQuery('This message too old, you should delete it yourserf.', true)
-    return
+    return ctx.answerCbQuery('This message too old, you should delete it yourserf.', true)
   }
-  ctx.answerCbQuery('')
+  return ctx.answerCbQuery('')
 })
 
 module.exports = app => {
