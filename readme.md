@@ -1,12 +1,14 @@
 # nyaa.si bot
 
-![GitHub package.json version](https://img.shields.io/github/package-json/v/ejnshtein/nyaasi-bot?style=flat-square)
-[![telegram channel](https://img.shields.io/badge/telegram-channel-blue.svg?style=flat-square)](https://t.me/nyaasi)
-[![telegram chat](https://img.shields.io/badge/telegram-chat-blue.svg?style=flat-square)](https://t.me/nyaasi_chat)
-[![nyaa.si bot](https://img.shields.io/badge/nyaa.si-bot-blue.svg?style=flat-square)](https://t.me/nyaasi_bot)  
+![GitHub package.json version](https://img.shields.io/github/package-json/v/ejnshtein/nyaasi-bot?style=flat-square)  
+[![nyaa.si channel](https://img.shields.io/badge/nyaa.si-channel-blue.svg?style=flat-square)](https://t.me/nyaasi)  
+[![nyaa.si bot](https://img.shields.io/badge/nyaa.si-bot-blue.svg?style=flat-square)](https://t.me/nyaasi_bot)   
+Discuss - [![nyaa.si chat](https://img.shields.io/badge/nyaa.si-chat-blue.svg?style=flat-square)](https://t.me/nyaasi_chat)  
 It's my implementation of bot for [Nyaa.si](https://nyaa.si) in [Telegram](https://telegram.org) powered by [Telegraf](https://github.com/telegraf/telegraf).  
 Bot in telegram - [nyaa.si bot](https://t.me/nyaasi_bot)  
 RSS channel - [Nyaa.si](https://t.me/nyaasi)  
+
+[18+] Also supports [Sukebei](https://sukebei.nyaa.si) ([channel](https://t.me/sukebeinyaasi) and [bot](https://t.me/sukebei_nyaasi_bot))
 
 ## Features
 
