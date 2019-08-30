@@ -1,5 +1,5 @@
 const cheerio = require('cheerio')
-const origin = 'https://nyaa.si'
+const origin = `https://${process.env.HOST}`
 const bytes = require('bytes-iec')
 
 function parseSearch (html) {
@@ -16,7 +16,7 @@ function parseSearch (html) {
       category: {
         label: select('td:nth-child(1) > a').attr('title'),
         code: new URL(
-          select('td:nth-child(1) > a').attr('href'), 'https://nyaa.si'
+          select('td:nth-child(1) > a').attr('href'), `https://${process.env.HOST}`
         ).searchParams.get('c')
       },
       name: select('td:nth-child(2) > a').text(),
@@ -40,13 +40,13 @@ function parseSearch (html) {
   }).get()
   const current_page = Number.parseInt(
     page('body > div.container > div.center > nav > ul').html()
-      ? new URL(page('body > div.container > div.center > nav > ul > li.active > a').attr('href'), 'https://nyaa.si').searchParams.get('p')
+      ? new URL(page('body > div.container > div.center > nav > ul > li.active > a').attr('href'), origin).searchParams.get('p')
       : page('body > div.container > div.center > ul > li.active').text()
   ) || 1
   const last_page = Number.parseInt(
     page('body > div.container > div.center > nav > ul').html()
-      ? new URL(page('body > div.container > div.center > nav > ul > li:last-of-type').prev().children('a').attr('href'), 'https://nyaa.si').searchParams.get('p')
-      : new URL(page('body > div.container > div.center > ul > li.next').prev().children('a').attr('href'), 'https://nyaa.si').searchParams.get('p')
+      ? new URL(page('body > div.container > div.center > nav > ul > li:last-of-type').prev().children('a').attr('href'), origin).searchParams.get('p')
+      : new URL(page('body > div.container > div.center > ul > li.next').prev().children('a').attr('href'), origin).searchParams.get('p')
   ) || 1
   return {
     current_page,
@@ -59,10 +59,10 @@ function parseTorrent (html, id) {
   const select = cheerio.load(html)
   return {
     id: typeof id === 'string' ? Number.parseInt(id) : id,
-    title: select('body > div.container > div:nth-child(1) > div.panel-heading > h3').text().trim(),
-    fileSize: select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(4) > div:nth-child(2)').html(),
-    fileSizeBytes: bytes.parse(select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(4) > div:nth-child(2)').html()),
-    category: select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(1) > div:nth-child(2)')
+    title: select('body > div.container > div.panel > div.panel-heading > h3').text().trim(),
+    fileSize: select('body > div.container > div.panel > div.panel-body > div:nth-child(4) > div:nth-child(2)').html(),
+    fileSizeBytes: bytes.parse(select('body > div.container > div.panel > div.panel-body > div:nth-child(4) > div:nth-child(2)').html()),
+    category: select('body > div.container > div.panel > div.panel-body > div:nth-child(1) > div:nth-child(2)')
       .children('a')
       .map((i, el) => (
         {
@@ -72,26 +72,26 @@ function parseTorrent (html, id) {
       )
       ).get(),
     entry: getEntry(
-      select('body > div.container > div:nth-child(1)')
+      select('body > div.container > div.panel')
         .attr('class')
         .match(/panel-(\S+)/i)[1]
     ),
     links: {
-      torrent: origin + select('body > div.container > div:nth-child(1) > div:last-of-type > a:first-of-type').attr('href'),
-      magnet: select('body > div.container > div:nth-child(1) > div:last-of-type > a:last-of-type').attr('href')
+      torrent: origin + select('body > div.container > div.panel > div:last-of-type > a:first-of-type').attr('href'),
+      magnet: select('body > div.container > div.panel > div:last-of-type > a:last-of-type').attr('href')
     },
-    timestamp: select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(1) > div:nth-child(4)').attr('data-timestamp'),
-    submitter: select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(2) > div:nth-child(2) > a').html()
+    timestamp: select('body > div.container > div.panel > div.panel-body > div:nth-child(1) > div:nth-child(4)').attr('data-timestamp'),
+    submitter: select('body > div.container > div.panel > div.panel-body > div:nth-child(2) > div:nth-child(2) > a').html()
       ? {
-        name: select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(2) > div:nth-child(2) > a').html(),
-        link: origin + select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(2) > div:nth-child(2) > a').attr('href')
+        name: select('body > div.container > div.panel > div.panel-body > div:nth-child(2) > div:nth-child(2) > a').html(),
+        link: origin + select('body > div.container > div.panel > div.panel-body > div:nth-child(2) > div:nth-child(2) > a').attr('href')
       }
       : 'Anonymous',
-    info: select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(3) > div:nth-child(2) a').attr('href') || 'No information',
-    infoHash: select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(5) > div.col-md-5 > kbd').html(),
-    seeders: select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(2) > div:nth-child(4) > span').html(),
-    leechers: select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(3) > div:nth-child(4) > span').html(),
-    completed: select('body > div.container > div:nth-child(1) > div.panel-body > div:nth-child(4) > div:nth-child(4)').html(),
+    info: select('body > div.container > div.panel > div.panel-body > div:nth-child(3) > div:nth-child(2) a').attr('href') || 'No information',
+    infoHash: select('body > div.container > div.panel > div.panel-body > div:nth-child(5) > div.col-md-5 > kbd').html(),
+    seeders: select('body > div.container > div.panel > div.panel-body > div:nth-child(2) > div:nth-child(4) > span').html(),
+    leechers: select('body > div.container > div.panel > div.panel-body > div:nth-child(3) > div:nth-child(4) > span').html(),
+    completed: select('body > div.container > div.panel > div.panel-body > div:nth-child(4) > div:nth-child(4)').html(),
     // files: parseTorrentFiles(select('body > div.container > div:nth-child(3) > div.torrent-file-list.panel-body').html())
   }
 }

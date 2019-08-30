@@ -5,7 +5,7 @@ const { getTorrent } = require('../nyaasi')
 
 composer.action(/^magnet=([0-9]+):p=(\S+):o=(\S+)/i, async ctx => {
   const { value } = loadSearchParams(ctx.callbackQuery.message)
-  const searchUrl = `https://nyaa.si/?p=${ctx.match[2]}${value ? `&q=${value}` : ''}`
+  const searchUrl = `https://${process.env.HOST}/?p=${ctx.match[2]}${value ? `&q=${value}` : ''}`
   try {
     var torrent = await getTorrent(ctx.match[1])
   } catch (e) {

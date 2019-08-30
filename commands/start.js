@@ -1,7 +1,7 @@
 const Composer = require('telegraf/composer')
 const path = require('path')
 const composer = new Composer()
-const { buttons, buffer, sendFile, sleep } = require('../lib')
+const { buttons, buffer, sendFile } = require('../lib')
 const { torrentView, searchTorrentView } = require('../generators')
 const { getTorrent } = require('../nyaasi')
 const { onlyPrivate } = require('../middlewares')
@@ -13,7 +13,7 @@ class StartHandler {
 
   async download (id) {
     await this.ctx.replyWithDocument({
-      url: `https://nyaa.si/download/${id}.torrent`,
+      url: `https://${process.env.HOST}/download/${id}.torrent`,
       filename: `${id}.torrent`
     })
   }
@@ -30,7 +30,7 @@ class StartHandler {
 
   async magnet (id) {
     const torrent = await getTorrent(id)
-    await this.ctx.reply(`<a href="https://nyaa.si/">&#8203;</a>${torrent.title}\n<code>${torrent.links.magnet}</code>`, {
+    await this.ctx.reply(`<a href="https://${process.env.HOST}/">&#8203;</a>${torrent.title}\n<code>${torrent.links.magnet}</code>`, {
       parse_mode: 'HTML',
       disable_web_page_preview: true,
       reply_markup: {
@@ -124,7 +124,7 @@ composer.start(onlyPrivate, async ctx => {
         } catch (e) {}
     }
   }
-  ctx.reply(`I'm nyaa.si website bot and i can help you to find some torrents on nyaa.si right here, in our beautiful Telegram!`, {
+  ctx.reply(`I'm ${process.env.WEBSITE_TITLE} website bot and i can help you to find some torrents on ${process.env.WEBSITE_TITLE} right here, in our beautiful Telegram!`, {
     reply_markup: {
       inline_keyboard: [
         [

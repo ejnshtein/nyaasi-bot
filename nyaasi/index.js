@@ -7,7 +7,7 @@ const {
 
 class Nyassi {
   static search (query = '', params = {}) {
-    return request('https://nyaa.si/', merge.all(
+    return request(`https://${process.env.HOST}/`, merge.all(
       [
         {
           params: {
@@ -24,7 +24,7 @@ class Nyassi {
   }
 
   static getTorrent (id, params = {}) {
-    return request(`https://nyaa.si/view/${id}`, merge.all(
+    return request(`https://${process.env.HOST}/view/${id}`, merge.all(
       [
         {
           headers: {

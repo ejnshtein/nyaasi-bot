@@ -97,7 +97,7 @@ module.exports = async (query = '', page = 1, offset = 0) => {
     text: 'Switch to inline',
     switch_inline_query_current_chat: query
   }])
-  const searchUrl = `https://nyaa.si/?p=${page}&q=${query}`
+  const searchUrl = `https://${process.env.HOST}/?p=${page}&q=${query}`
   return {
     text: templates.searchText(
       searchUrl,

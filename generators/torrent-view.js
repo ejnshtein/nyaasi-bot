@@ -75,7 +75,7 @@ module.exports = async (id, query = '', history = 'p=1:o=0', publicMessage = fal
       : templates.torrent.view(
         id,
         torrent,
-        `https://nyaa.si/?q=${query}`
+        `https://${process.env.HOST}/?q=${query}`
       ),
     extra: {
       reply_markup: {

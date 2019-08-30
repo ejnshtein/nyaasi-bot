@@ -30,7 +30,7 @@ module.exports = {
         }
       ]
     )
-    const searchUrl = `https://nyaa.si/?p=1&q=${query}`
+    const searchUrl = `https://${process.env.HOST}/?p=1&q=${query}`
     const messageText = templates.searchText(searchUrl, query, 1, 0)
     return {
       text: messageText,

@@ -57,7 +57,7 @@ composer.action(
   onlyAllowed,
   async ctx => {
     const { value } = loadSearchParams(ctx.callbackQuery.message)
-    const searchUrl = `https://nyaa.si/?p=${ctx.match[2]}${value ? `&q=${value}` : ''}`
+    const searchUrl = `https://${process.env.HOST}/?p=${ctx.match[2]}${value ? `&q=${value}` : ''}`
     const params = querystring.parse(ctx.match[1])
     const offset = Number(params['o']) || 0
     const torrentId = Number(params['i'])

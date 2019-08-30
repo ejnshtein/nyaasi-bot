@@ -2,10 +2,10 @@ const Composer = require('telegraf/composer')
 const composer = new Composer()
 
 composer.action(/^d=([0-9]+)$/, async (ctx) => {
-  const caption = `<a href="https://nyaa.si/view/${ctx.match[1]}">nyaa.si/view/${ctx.match[1]}</a>`
+  const caption = `<a href="https://${process.env.HOST}/view/${ctx.match[1]}">${process.env.HOST}/view/${ctx.match[1]}</a>`
   try {
     await ctx.replyWithDocument({
-      url: `https://nyaa.si/download/${ctx.match[1]}.torrent`,
+      url: `https://${process.env.HOST}/download/${ctx.match[1]}.torrent`,
       filename: `${ctx.match[1]}.torrent`
     }, {
       caption: caption,
@@ -15,12 +15,8 @@ composer.action(/^d=([0-9]+)$/, async (ctx) => {
   } catch (e) {
     ctx.answerCbQuery(`Something went wrong...\n\n${e.message}`, true)
   }
+  ctx.answerCbQuery('')
 })
-
-// composer.action(/^download:(\S+);&/, (ctx) => {
-//   ctx.answerCbQuery('')
-//   ctx.replyWithDocument(`https://nyaa.si/download/${ctx.match[1]}.torrent`)
-// })
 
 module.exports = app => {
   app.use(composer.middleware())
