@@ -3,7 +3,9 @@ const composer = new Composer()
 const { onlyPrivate } = require('../middlewares')
 const { torrentView } = require('../generators')
 
-composer.url(/nyaa\.si\/view\/([0-9]+)/i,
+const regexp = new RegExp(`${process.env.HOST.replace(/\./ig, '\\.')}\\/view\\/([0-9]+)`, 'i')
+
+composer.url(regexp,
   Composer.branch(onlyPrivate,
     async ctx => {
       try {
