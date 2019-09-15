@@ -14,6 +14,12 @@ setInterval(
     workers.forEach((val, key) => {
       if (Date.now() - val.updated_at > 10000) {
         workers.delete(key)
+        torrents.forEach((val1, key1) => {
+          if (val1.worker_id === key) {
+            torrents.delete(key1)
+            return
+          }
+        })
       }
     })
   },
@@ -75,7 +81,9 @@ subscriber.on('torrentStatus', async e => {
           `Starting download torrent #nyaa${e.id} by #worker${e.worker}`
         )
         torrent.channel_msg_id = msg.message_id
-      } catch (e) {}
+      } catch (e) {
+        console.log(e)
+      }
 
       if (torrent.users.length) {
         broadcastMessage(
