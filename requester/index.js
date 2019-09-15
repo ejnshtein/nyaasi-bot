@@ -7,6 +7,19 @@ const { getArgv } = require('../lib')
 
 const torrents = new Map()
 
+const workers = new Map()
+
+setInterval(
+  () => {
+    workers.forEach((val, key) => {
+      if (Date.now() - val.updated_at > 10000) {
+        workers.delete(key)
+      }
+    })
+  },
+  5000
+)
+
 if (getArgv('-monitor')) {
   new cote.MonitoringTool(Number(getArgv('-monitor')))
 }
@@ -18,7 +31,20 @@ const requester = new cote.Requester({
 
 const subscriber = new cote.Subscriber({
   name: 'bot',
-  subscribesTo: ['torrentStatus', 'torrentDone', 'torrentError']
+  subscribesTo: [
+    'torrentStatus',
+    'torrentDone',
+    'torrentError',
+    'hearthBeat',
+    'login'
+  ]
+})
+
+const responder = new cote.Responder({
+  name: 'authentificator',
+  respondsTo: [
+    'login'
+  ]
 })
 
 subscriber.on('torrentStatus', async e => {
@@ -35,6 +61,10 @@ subscriber.on('torrentStatus', async e => {
     })
   }
   const torrent = torrents.get(e.id)
+
+  if (!workers.has(e.worker)) {
+    return
+  }
   
   switch (e.type) {
     case 'start':
@@ -45,7 +75,7 @@ subscriber.on('torrentStatus', async e => {
           `Starting download torrent #nyaa${e.id} by #worker${e.worker}`
         )
         torrent.channel_msg_id = msg.message_id
-      } catch {}
+      } catch (e) {}
 
       if (torrent.users.length) {
         broadcastMessage(
@@ -83,6 +113,11 @@ subscriber.on('torrentDone', async e => {
   const torrent = torrents.get(e.id)
   torrents.delete(e.id)
   console.log(`Job completed: ${e.id} `, e.files)
+
+  if (!workers.has(e.worker)) {
+    return
+  }
+
   try {
     await collection('torrents').updateOne(
       {
@@ -129,6 +164,11 @@ subscriber.on('torrentError', async e => {
   const torrent = torrents.get(e.id)
   torrents.delete(e.id)
   console.log(`Job failed: ${e.id} `, e.error_message, e.error_stack)
+
+  if (!workers.has(e.worker)) {
+    return
+  }
+
   // there could be more err types, so that's why here's an array
   const isFileError = ['Size of some of files is bigger than 1.5gb.', 'Timeout reached limit'].includes(e.error_message)
   try {
@@ -167,6 +207,28 @@ subscriber.on('torrentError', async e => {
         status_text: e.error_message
       }
     }).exec()
+})
+
+responder.on('login', async e => {
+  if (workers.has(e.id)) {
+    return {
+      ok: false
+    }
+  } else {
+    workers.set(e.id, {
+      created_at: Date.now(),
+      updated_at: Date.now()
+    })
+    return {
+      ok: true
+    }
+  }
+})
+
+subscriber.on('hearthBeat', async e => {
+  if (workers.has(e.id)) {
+    workers.get(e.id).updated_at = Date.now()
+  }
 })
 
 async function broadcastMessage (users, messageText, ...rest) {
