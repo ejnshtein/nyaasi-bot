@@ -47,6 +47,11 @@ composer.action(
     } catch (e) {
       return ctx.answerCbQuery(`Something went wrong...\n\n${e.message}`, true)
     }
+    if (torrent.files.length === 1) {
+      try {
+        await ctx.deleteMessage()
+      } catch {}
+    }
     ctx.answerCbQuery('')
   }
 )
@@ -68,6 +73,7 @@ composer.action(
     try {
       var { text, extra } = await chooseKeyboard(ctx.db, torrentId, offset, searchUrl)
     } catch (e) {
+      console.log(e)
       return ctx.answerCbQuery(`Something went wrong...\n\n${e.message}`, true)
     }
     ctx.answerCbQuery('')
@@ -109,8 +115,9 @@ composer.action(
       }
       await sleep(2000)
     }
+    ctx.deleteMessage()
     return ctx.reply(`Files sent`, {
-      reply_to_message_id: ctx.callbackQuery.message.message_id,
+      // reply_to_message_id: ctx.callbackQuery.message.message_id,
       reply_markup: {
         inline_keyboard: [
           [

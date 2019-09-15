@@ -3,15 +3,28 @@ const querystring = require('querystring')
 const { AllHtmlEntities } = require('html-entities')
 const { decode } = new AllHtmlEntities()
 
-module.exports = async (db, torrentId, offset = 0, searchUrl) => {
-  const torrent = await db('torrents').findOne({ id: torrentId }).exec()
-  const keyboard = torrent.files
+module.exports = async (db, id, offset = 0, searchUrl) => {
+  const torrent = await db('torrents').findOne({ id: id }).exec()
+
+  if (!torrent) {
+    return {
+      text: 'Torrent not found in DB',
+      extra: {}
+    }
+  }
+  if (!torrent.files) {
+    return {
+      text: 'No files found',
+      extra: {}
+    }
+  }
+  const keyboard = Array.from(torrent.files)
     .slice(offset, offset + 10)
     .map(file => (
       [
         {
           text: `[${file.id}/${torrent.files.length}] [${file.type}] ${decode(file.caption)}`,
-          callback_data: `file:${querystring.stringify({ i: torrentId, f: file.id })}`
+          callback_data: `file:${querystring.stringify({ i: id, f: file.id })}`
         }
       ]
     ))
@@ -21,11 +34,11 @@ module.exports = async (db, torrentId, offset = 0, searchUrl) => {
         [
           {
             text: buttons.offset.minus(10),
-            callback_data: `files:${querystring.stringify({ i: torrentId, o: offset - 10 })}`
+            callback_data: `files:${querystring.stringify({ i: id, o: offset - 10 })}`
           },
           {
             text: buttons.offset.plus(10),
-            callback_data: `files:${querystring.stringify({ i: torrentId, o: offset + 10 })}`
+            callback_data: `files:${querystring.stringify({ i: id, o: offset + 10 })}`
           }
         ]
       )
@@ -34,7 +47,7 @@ module.exports = async (db, torrentId, offset = 0, searchUrl) => {
         [
           {
             text: buttons.offset.minus(10),
-            callback_data: `files:${querystring.stringify({ i: torrentId, o: offset - 10 })}`
+            callback_data: `files:${querystring.stringify({ i: id, o: offset - 10 })}`
           }
         ]
       )
@@ -44,7 +57,7 @@ module.exports = async (db, torrentId, offset = 0, searchUrl) => {
       [
         {
           text: buttons.offset.plus(10),
-          callback_data: `files:${querystring.stringify({ i: torrentId, o: offset + 10 })}`
+          callback_data: `files:${querystring.stringify({ i: id, o: offset + 10 })}`
         }
       ]
     )
@@ -54,7 +67,16 @@ module.exports = async (db, torrentId, offset = 0, searchUrl) => {
       [
         {
           text: 'Get all files (might take a while)',
-          callback_data: `filesall:${querystring.stringify({ i: torrentId })}`
+          callback_data: `filesall:${querystring.stringify({ i: id })}`
+        }
+      ]
+    )
+  } else {
+    keyboard.push(
+      [
+        {
+          text: 'OK',
+          callback_data: 'delete'
         }
       ]
     )
