@@ -17,6 +17,12 @@ setInterval(
         torrents.forEach((val1, key1) => {
           if (val1.worker_id === key) {
             torrents.delete(key1)
+              telegram.editMessageText(
+                process.env.STORE_CHANNEL_ID,
+                torrent.channel_msg_id,
+                undefined,
+                `#nyaa${val1.torrent.id} uploading error on #worker${key}:\n\nTimeout reached limit`
+              )
             return
           }
         })
