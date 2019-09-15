@@ -11,6 +11,10 @@ composer.action(
   onlyPrivate,
   onlyAllowed,
   async ctx => {
+    if (!process.env.REDIS_URL) {
+      return ctx.answerCbQuery('Sorry, this feature is currently disabled')
+    }
+  
     const params = querystring.parse(ctx.match[1])
     const torrentId = params['i']
     if (!torrentId) {
