@@ -1,4 +1,8 @@
-const cote = require('cote')({ COTE_DISCOVERY_REDIS_URL: process.env.REDIS_URL })
+const cote = require('cote')({
+  redis: {
+    url: process.env.REDIS_URL
+  }
+})
 
 const { Telegram } = require('telegraf')
 const telegram = new Telegram(process.env.BOT_TOKEN)
