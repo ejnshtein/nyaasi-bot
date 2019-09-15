@@ -4,6 +4,11 @@ const { getTorrent } = require('../nyaasi')
 const { onlyPrivate, onlyAllowed } = require('../middlewares')
 const { addTorrent } = require('../requester')
 
+if (!process.env.REDIS_URL) {
+  module.exports = (bot) => {}
+  return
+}
+
 composer.action(
   /^getfiles=([0-9]+)/i,
   onlyPrivate,

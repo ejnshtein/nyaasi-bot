@@ -3,10 +3,13 @@ const cote = require('cote')({ COTE_DISCOVERY_REDIS_URL: process.env.REDIS_URL }
 const { Telegram } = require('telegraf')
 const telegram = new Telegram(process.env.BOT_TOKEN)
 const collection = require('../core/database')
+const { getArgv } = require('../lib')
 
 const torrents = new Map()
 
-new cote.MonitoringTool(5555)
+if (getArgv('-monitor')) {
+  new cote.MonitoringTool(Number(getArgv('-monitor')))
+}
 
 const requester = new cote.Requester({
   name: 'bot',
