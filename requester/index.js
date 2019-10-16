@@ -7,7 +7,7 @@ const cote = require('cote')({
 const { Telegram } = require('telegraf')
 const telegram = new Telegram(process.env.BOT_TOKEN)
 const collection = require('../core/database')
-const { getArgv } = require('../lib')
+const { argv, getArgv } = require('../lib')
 
 const torrents = new Map()
 
@@ -36,7 +36,7 @@ setInterval(
   5000
 )
 
-if (getArgv('-monitor')) {
+if (argv('-monitor')) {
   new cote.MonitoringTool(Number(getArgv('-monitor')))
 }
 
@@ -263,13 +263,21 @@ async function broadcastMessage (users, messageText, ...rest) {
 
 module.exports = {
   addTorrent: async (user, torrent) => {
+    if (!workers.size) {
+      return {
+        ok: false,
+        message: `No workers registered, can't start download`
+      }
+    }
     if (torrents.has(torrent.id)) {
       let torrentInMap = torrents.get(torrent.id)
       let usersCount = torrentInMap.users.push(user)
-      return `Torrent was already queued, ${usersCount - 1} user${usersCount - 1 > 1 ? 's are' : ' is'} waiting.`
+      return {
+        ok: true,
+        message: `Torrent was already queued, ${usersCount - 1} user${usersCount - 1 > 1 ? 's are' : ' is'} waiting.`
+      }
     } else {
-
-      let res = await requester.send({
+      const res = await requester.send({
         type: 'queueTorrent',
         torrent: {
           id: torrent.id,
@@ -281,7 +289,10 @@ module.exports = {
         users: [user],
         worker_id: res.worker
       })
-      return `Torrent added to queue, ${res.torrents} torrent${res.torrents > 1 ? 's' : ''} in queue`
+      return {
+        ok: true,
+        message: `Torrent added to queue, ${res.torrents} torrent${res.torrents > 1 ? 's' : ''} in queue`
+      }
     }
   }
 }

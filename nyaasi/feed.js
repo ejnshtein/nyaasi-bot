@@ -71,7 +71,7 @@ module.exports = bot => {
           [
             {
               text: buttons.torrent.magnet,
-              url: `${process.env.MAGNET_REDIRECT_HOST}/nyaamagnet/urn:btih:${post['nyaa:infoHash']}`
+              url: `${process.env.MAGNET_REDIRECT_HOST}/${process.env.MAGNET_REDIRECT_PREFIX}/urn:btih:${post['nyaa:infoHash']}`
             },
             {
               text: 'Torrent info',

@@ -1,3 +1,10 @@
+const { argv } = require('../lib')
+
+if (!argv('-torrents')) {
+  module.exports = app => {
+  }
+  return
+} // else setup code below
 const Composer = require('telegraf/composer')
 const composer = new Composer()
 const { getTorrent } = require('../nyaasi')
@@ -43,12 +50,17 @@ composer.action(
         ...ctx.from,
         is_admin: user.is_admin
       }, torrent)
-      await ctx.db('torrents').updateOne({ id: torrent.id }, { $set: { status: 'pending' }}).exec()
+      if (msg.ok) {
+        await ctx.db('torrents').updateOne({ id: torrent.id }, { $set: { status: 'pending' }}).exec()
+      }
     } catch (e) {
       return ctx.answerCbQuery(`Something went wrong...\n\n${e.message}`, true)
     }
-  
-    ctx.answerCbQuery('')
+    if (!msg.ok) {
+      return ctx.answerCbQuery(msg.message)
+    } else {
+      await ctx.answerCbQuery('')
+    }
     return ctx.reply(msg)
   })
 

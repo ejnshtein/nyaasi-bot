@@ -80,7 +80,7 @@ function inlineTorrent (torrent, me) {
         [
           {
             text: buttons.torrent.magnet,
-            url: `${process.env.MAGNET_REDIRECT_HOST}/nyaamagnet/${getXtFromMagnet(torrent.links.magnet)}`
+            url: `${process.env.MAGNET_REDIRECT_HOST}/${process.env.MAGNET_REDIRECT_PREFIX}/${getXtFromMagnet(torrent.links.magnet)}`
           }, {
             text: buttons.torrent.download,
             url: `https://t.me/${me}?start=${buffer.encode(`download:${torrent.id}`)}`

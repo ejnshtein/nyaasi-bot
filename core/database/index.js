@@ -2,7 +2,8 @@ const mongoose = require('mongoose')
 const { Schema } = mongoose
 
 const connection = mongoose.createConnection(process.env.DATABASE_URL, {
-  useNewUrlParser: true
+  useNewUrlParser: true,
+  useUnifiedTopology: true
 })
 
 connection.then(() => {

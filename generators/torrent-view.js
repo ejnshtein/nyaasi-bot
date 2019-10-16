@@ -1,5 +1,5 @@
 const { getTorrent } = require('../nyaasi')
-const { templates, buttons, buffer, getXtFromMagnet } = require('../lib')
+const { templates, buttons, buffer, getXtFromMagnet, argv } = require('../lib')
 const collection = require('../core/database')
 const querystring = require('querystring')
 
@@ -13,7 +13,7 @@ module.exports = async (id, query = '', history = 'p=1:o=0', publicMessage = fal
         url: `https://t.me/${me}?start=${buffer.encode(`download:${id}`)}`
       }, {
         text: buttons.torrent.magnet,
-        url: `${process.env.MAGNET_REDIRECT_HOST}/nyaamagnet/${getXtFromMagnet(torrent.links.magnet)}`
+        url: `${process.env.MAGNET_REDIRECT_HOST}/${process.env.MAGNET_REDIRECT_PREFIX}/${getXtFromMagnet(torrent.links.magnet)}`
       },
       {
         text: 'Full view',
@@ -27,7 +27,7 @@ module.exports = async (id, query = '', history = 'p=1:o=0', publicMessage = fal
         callback_data: `d=${id}`
       }, {
         text: buttons.torrent.magnet,
-        url: `${process.env.MAGNET_REDIRECT_HOST}/nyaamagnet/${getXtFromMagnet(torrent.links.magnet)}`
+        url: `${process.env.MAGNET_REDIRECT_HOST}/${process.env.MAGNET_REDIRECT_PREFIX}/${getXtFromMagnet(torrent.links.magnet)}`
       },
       {
         text: buttons.share,
@@ -45,27 +45,29 @@ module.exports = async (id, query = '', history = 'p=1:o=0', publicMessage = fal
       }
     ]
   ]
-  if (allowGetFiles) {
-    if (canDownloadTorrent) {
-      keyboard.push(
-        [
-          {
-            text: DbTorrent && DbTorrent.status === 'uploaded' ? 'Get Files' : 'Download files to Telegram',
-            callback_data: DbTorrent && DbTorrent.status === 'uploaded'
-              ? `files:${querystring.stringify({ i: id, n: 1 })}`
-              : `getfiles=${id}`
-          }
-        ]
-      )
-    } else if (DbTorrent && DbTorrent.status === 'uploaded') {
-      keyboard.push(
-        [
-          {
-            text: 'Get Files',
-            callback_data: `files:${querystring.stringify({ i: id, n: 1 })}`
-          }
-        ]
-      )
+  if (argv('-torrents')) {
+    if (allowGetFiles) {
+      if (canDownloadTorrent) {
+        keyboard.push(
+          [
+            {
+              text: DbTorrent && DbTorrent.status === 'uploaded' ? 'Get Files' : 'Download files to Telegram',
+              callback_data: DbTorrent && DbTorrent.status === 'uploaded'
+                ? `files:${querystring.stringify({ i: id, n: 1 })}`
+                : `getfiles=${id}`
+            }
+          ]
+        )
+      } else if (DbTorrent && DbTorrent.status === 'uploaded') {
+        keyboard.push(
+          [
+            {
+              text: 'Get Files',
+              callback_data: `files:${querystring.stringify({ i: id, n: 1 })}`
+            }
+          ]
+        )
+      }
     }
   }
   return {

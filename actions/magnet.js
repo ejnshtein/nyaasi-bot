@@ -22,7 +22,7 @@ composer.action(/^magnet=([0-9]+):p=(\S+):o=(\S+)/i, async ctx => {
         [
           {
             text: 'Open magnet',
-            url: `${process.env.MAGNET_REDIRECT_HOST}/nyaamagnet/${getXtFromMagnet(torrent.links.magnet)}`
+            url: `${process.env.MAGNET_REDIRECT_HOST}/${process.env.MAGNET_REDIRECT_PREFIX}/${getXtFromMagnet(torrent.links.magnet)}`
           }
         ],
         [
