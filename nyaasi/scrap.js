@@ -9,7 +9,7 @@ function parseSearch (html) {
     const select = cheerio.load(el)
     return {
       id: Number.parseInt(
-        select('td:nth-child(2) > a')
+        select('td:nth-child(2) > a:last-of-type')
           .attr('href')
           .split('/').pop()
       ),
@@ -19,10 +19,10 @@ function parseSearch (html) {
           select('td:nth-child(1) > a').attr('href'), `https://${process.env.HOST}`
         ).searchParams.get('c')
       },
-      name: select('td:nth-child(2) > a').text(),
-      title: select('td:nth-child(2) > a').text().trim(),
+      name: select('td:nth-child(2) > a:last-of-type').text(),
+      title: select('td:nth-child(2) > a:last-of-type').text().trim(),
       links: {
-        page: select('td:nth-child(2) > a').attr('href'),
+        page: select('td:nth-child(2) > a:last-of-type').attr('href'),
         file: select('td:nth-child(3) > a').attr('href'),
         magnet: select('td:nth-child(3) > a:last-of-type').attr('href')
       },
