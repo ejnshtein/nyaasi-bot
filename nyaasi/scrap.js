@@ -59,7 +59,7 @@ function parseTorrent (html, id) {
   const select = cheerio.load(html)
   return {
     id: typeof id === 'string' ? Number.parseInt(id) : id,
-    title: select('body > div.container > div.panel > div.panel-heading > h3').text().trim(),
+    title: select('body > div.container > div.panel:first-of-type > div.panel-heading > h3').text().trim(),
     fileSize: select('body > div.container > div.panel > div.panel-body > div:nth-child(4) > div:nth-child(2)').html(),
     fileSizeBytes: bytes.parse(select('body > div.container > div.panel > div.panel-body > div:nth-child(4) > div:nth-child(2)').html()),
     category: select('body > div.container > div.panel > div.panel-body > div:nth-child(1) > div:nth-child(2)')
