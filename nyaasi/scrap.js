@@ -60,6 +60,10 @@ export function parseTorrent (html, id) {
   const select = cheerio.load(html)
 
   select('.servers-cost-money1').remove()
+
+  const entryMatch = select('body > div.container > div:first-of-type')
+    .attr('class')
+
   return {
     id: typeof id === 'string' ? Number.parseInt(id) : id,
     title: select('body > div.container > div.panel:first-of-type > div.panel-heading > h3').text().trim(),
@@ -75,9 +79,7 @@ export function parseTorrent (html, id) {
       )
       ).get(),
     entry: getEntry(
-      select('body > div.container > div.panel')
-        .attr('class')
-        .match(/panel-(\S+)/i)[1]
+      entryMatch.match(/panel-(\S+)$/i)[1]
     ),
     links: {
       torrent: origin + select('body > div.container > div.panel > div:last-of-type > a:first-of-type').attr('href'),
@@ -97,30 +99,30 @@ export function parseTorrent (html, id) {
     leechers: select('body > div.container > div.panel > div.panel-body > div:nth-child(3) > div:nth-child(4) > span').html(),
     completed: select('body > div.container > div.panel > div.panel-body > div:nth-child(4) > div:nth-child(4)').html(),
     // files: parseTorrentFiles(select('body > div.container > div:nth-child(3) > div.torrent-file-list.panel-body').html())
-    comments_count: Number.parseInt(
-      select('#comments > .panel-heading > a > h3')
-        .text()
-        .match(/Comments - ([0-9]+)/i)[1]
-    ),
-    comments: select('#collapse-comments > div.panel')
-      .map((i, el) => {
-        const commentSelector = cheerio.load(el)
-        return {
-          id: Number.parseInt(
-            commentSelector('.panel-body > .comment > .comment-body > .comment.content')
-              .attr('id')
-              .match(/torrent-comment([0-9]+)/i)[1]
-          ),
-          from: {
-            username: commentSelector('.panel-body > .col-md-2 > p > a').text(),
-            avatar: commentSelector('.panel-body > .col-md-2 > img').attr('src')
-          },
-          timestamp: commentSelector('.panel-body > .comment > .comment-details > a > small').attr('data-timestamp'),
-          publish_date: commentSelector('.panel-body > .comment > .comment-details > a > small').attr('title'),
-          text: commentSelector('.panel-body > .comment > .comment-body > .comment.content > p').html()
-        }
-      })
-      .get()
+    // comments_count: Number.parseInt(
+    //   select('#comments > .panel-heading > a > h3')
+    //     .text()
+    //     .match(/Comments - ([0-9]+)/i)[1]
+    // ),
+    // comments: select('#collapse-comments > div.panel')
+    //   .map((i, el) => {
+    //     const commentSelector = cheerio.load(el)
+    //     return {
+    //       id: Number.parseInt(
+    //         commentSelector('.panel-body > .comment > .comment-body > .comment.content')
+    //           .attr('id')
+    //           .match(/torrent-comment([0-9]+)/i)[1]
+    //       ),
+    //       from: {
+    //         username: commentSelector('.panel-body > .col-md-2 > p > a').text(),
+    //         avatar: commentSelector('.panel-body > .col-md-2 > img').attr('src')
+    //       },
+    //       timestamp: commentSelector('.panel-body > .comment > .comment-details > a > small').attr('data-timestamp'),
+    //       publish_date: commentSelector('.panel-body > .comment > .comment-details > a > small').attr('title'),
+    //       text: commentSelector('.panel-body > .comment > .comment-body > .comment.content > p').html()
+    //     }
+    //   })
+    //   .get()
   }
 }
 

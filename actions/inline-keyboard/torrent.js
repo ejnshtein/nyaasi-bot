@@ -1,6 +1,6 @@
 import { Composer } from '@telegraf/core'
 import { bot } from '../../core/bot.js'
-import { loadSearchParams } from '../../lib/index.js'
+import { loadSearchParams, templates } from '../../lib/index.js'
 import viewTorrent from '../../views/inline-keyboard/torrent-view.js'
 const composer = new Composer()
 
@@ -23,7 +23,8 @@ composer.action([
     await ctx.answerCbQuery('')
     return ctx.editMessageText(text, extra)
   } catch (e) {
-    return ctx.answerCbQuery(`Something went wrong...\n\n${e.message}`, true)
+    console.log(e)
+    return ctx.answerCbQuery(templates.error(e), true)
   }
 })
 
