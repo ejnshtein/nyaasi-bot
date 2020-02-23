@@ -1,13 +1,16 @@
-const Composer = require('telegraf/composer')
+import { Composer } from '@telegraf/core'
+import { buttons, loadSearchParams, getXtFromMagnet } from '../../lib/index.js'
+import { Nyaa } from '../../nyaasi/Nyaa.js'
+import { bot } from '../../core/bot.js'
+import env from '../../env.js'
+
 const composer = new Composer()
-const { buttons, loadSearchParams, getXtFromMagnet } = require('../lib')
-const { getTorrent } = require('../nyaasi')
 
 composer.action(/^magnet=([0-9]+):p=(\S+):o=(\S+)/i, async ctx => {
   const { value } = loadSearchParams(ctx.callbackQuery.message)
-  const searchUrl = `https://${process.env.HOST}/?p=${ctx.match[2]}${value ? `&q=${value}` : ''}`
+  const searchUrl = `https://${env.HOST}/?p=${ctx.match[2]}${value ? `&q=${value}` : ''}`
   try {
-    var torrent = await getTorrent(ctx.match[1])
+    var torrent = await Nyaa.getTorrent(ctx.match[1])
   } catch (e) {
     return ctx.answerCbQuery(`Something went wrong...\n\n${e.message}`, true)
   }
@@ -22,7 +25,7 @@ composer.action(/^magnet=([0-9]+):p=(\S+):o=(\S+)/i, async ctx => {
         [
           {
             text: 'Open magnet',
-            url: `${process.env.MAGNET_REDIRECT_HOST}/${process.env.MAGNET_REDIRECT_PREFIX}/${getXtFromMagnet(torrent.links.magnet)}`
+            url: `${env.MAGNET_REDIRECT_HOST}/${env.MAGNET_REDIRECT_PREFIX}/${getXtFromMagnet(torrent.links.magnet)}`
           }
         ],
         [
@@ -36,6 +39,4 @@ composer.action(/^magnet=([0-9]+):p=(\S+):o=(\S+)/i, async ctx => {
   })
 })
 
-module.exports = app => {
-  app.use(composer.middleware())
-}
+bot.use(composer.middleware())

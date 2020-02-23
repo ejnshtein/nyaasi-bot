@@ -1,7 +1,9 @@
-import { Nyaa } from '../nyaasi/Nyaa.js'
-import { templates, buttons, buffer, getXtFromMagnet, argv } from '../lib/index.js'
-import collection from '../core/database/index.js'
+
+import { templates, buttons, buffer, getXtFromMagnet, argv } from '../../lib/index.js'
+import collection from '../../core/database/index.js'
 import { stringify } from 'querystring'
+import { Nyaa } from '../../nyaasi/Nyaa.js'
+import env from '../../env.js'
 
 export default async (id, query = '', history = 'p=1:o=0', publicMessage = false, me, allowGetFiles = false, canDownloadTorrent = false) => {
   const torrent = await Nyaa.getTorrent(id)
@@ -13,7 +15,7 @@ export default async (id, query = '', history = 'p=1:o=0', publicMessage = false
         url: `https://t.me/${me}?start=${buffer.encode(`download:${id}`)}`
       }, {
         text: buttons.torrent.magnet,
-        url: `${process.env.MAGNET_REDIRECT_HOST}/${process.env.MAGNET_REDIRECT_PREFIX}/${getXtFromMagnet(torrent.links.magnet)}`
+        url: `${env.MAGNET_REDIRECT_HOST}/${env.MAGNET_REDIRECT_PREFIX}/${getXtFromMagnet(torrent.links.magnet)}`
       },
       {
         text: 'Full view',
@@ -27,7 +29,7 @@ export default async (id, query = '', history = 'p=1:o=0', publicMessage = false
         callback_data: `d=${id}`
       }, {
         text: buttons.torrent.magnet,
-        url: `${process.env.MAGNET_REDIRECT_HOST}/${process.env.MAGNET_REDIRECT_PREFIX}/${getXtFromMagnet(torrent.links.magnet)}`
+        url: `${env.MAGNET_REDIRECT_HOST}/${env.MAGNET_REDIRECT_PREFIX}/${getXtFromMagnet(torrent.links.magnet)}`
       },
       {
         text: buttons.share,
@@ -70,6 +72,7 @@ export default async (id, query = '', history = 'p=1:o=0', publicMessage = false
       }
     }
   }
+
   return {
     torrent,
     text: publicMessage
@@ -77,7 +80,7 @@ export default async (id, query = '', history = 'p=1:o=0', publicMessage = false
       : templates.torrent.view(
         id,
         torrent,
-        `https://${process.env.HOST}/?q=${query}`
+        `https://${env.HOST}/?q=${query}`
       ),
     extra: {
       reply_markup: {

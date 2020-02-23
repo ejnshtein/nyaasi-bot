@@ -1,7 +1,8 @@
-const Composer = require('telegraf/composer')
+import { Composer } from '@telegraf/core'
+import { bot } from '../../core/bot.js'
 const composer = new Composer()
 
-composer.action(/^delete$/i, async ctx => {
+composer.action('delete', async ctx => {
   try {
     await ctx.deleteMessage()
   } catch (e) {
@@ -10,6 +11,4 @@ composer.action(/^delete$/i, async ctx => {
   return ctx.answerCbQuery('')
 })
 
-module.exports = app => {
-  app.use(composer.middleware())
-}
+bot.use(composer.middleware())

@@ -1,0 +1,5 @@
+import './delete.js'
+import './magnet.js'
+import './search.js'
+import './torrent.js'
+import './download-torrent-file.js'

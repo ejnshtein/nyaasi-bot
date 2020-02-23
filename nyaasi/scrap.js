@@ -1,8 +1,9 @@
-const cheerio = require('cheerio')
-const origin = `https://${process.env.HOST}`
-const bytes = require('bytes-iec')
+import cheerio from 'cheerio'
+import bytes from 'bytes-iec'
+import env from '../env.js'
+const origin = `https://${env.HOST}`
 
-function parseSearch (html) {
+export function parseSearch (html) {
   const page = cheerio.load(html)
   const table = page('body > div.container > div.table-responsive > table > tbody')
   const files = table.children('tr').map((i, el) => {
@@ -16,7 +17,7 @@ function parseSearch (html) {
       category: {
         label: select('td:nth-child(1) > a').attr('title'),
         code: new URL(
-          select('td:nth-child(1) > a').attr('href'), `https://${process.env.HOST}`
+          select('td:nth-child(1) > a').attr('href'), `https://${env.HOST}`
         ).searchParams.get('c')
       },
       name: select('td:nth-child(2) > a:last-of-type').text(),
@@ -55,8 +56,10 @@ function parseSearch (html) {
   }
 }
 
-function parseTorrent (html, id) {
+export function parseTorrent (html, id) {
   const select = cheerio.load(html)
+
+  select('.servers-cost-money1').remove()
   return {
     id: typeof id === 'string' ? Number.parseInt(id) : id,
     title: select('body > div.container > div.panel:first-of-type > div.panel-heading > h3').text().trim(),
@@ -87,18 +90,38 @@ function parseTorrent (html, id) {
         link: origin + select('body > div.container > div.panel > div.panel-body > div:nth-child(2) > div:nth-child(2) > a').attr('href')
       }
       : 'Anonymous',
+    description: select('#torrent-description').html(),
     info: select('body > div.container > div.panel > div.panel-body > div:nth-child(3) > div:nth-child(2) a').attr('href') || 'No information',
     infoHash: select('body > div.container > div.panel > div.panel-body > div:nth-child(5) > div.col-md-5 > kbd').html(),
     seeders: select('body > div.container > div.panel > div.panel-body > div:nth-child(2) > div:nth-child(4) > span').html(),
     leechers: select('body > div.container > div.panel > div.panel-body > div:nth-child(3) > div:nth-child(4) > span').html(),
     completed: select('body > div.container > div.panel > div.panel-body > div:nth-child(4) > div:nth-child(4)').html(),
     // files: parseTorrentFiles(select('body > div.container > div:nth-child(3) > div.torrent-file-list.panel-body').html())
+    comments_count: Number.parseInt(
+      select('#comments > .panel-heading > a > h3')
+        .text()
+        .match(/Comments - ([0-9]+)/i)[1]
+    ),
+    comments: select('#collapse-comments > div.panel')
+      .map((i, el) => {
+        const commentSelector = cheerio.load(el)
+        return {
+          id: Number.parseInt(
+            commentSelector('.panel-body > .comment > .comment-body > .comment.content')
+              .attr('id')
+              .match(/torrent-comment([0-9]+)/i)[1]
+          ),
+          from: {
+            username: commentSelector('.panel-body > .col-md-2 > p > a').text(),
+            avatar: commentSelector('.panel-body > .col-md-2 > img').attr('src')
+          },
+          timestamp: commentSelector('.panel-body > .comment > .comment-details > a > small').attr('data-timestamp'),
+          publish_date: commentSelector('.panel-body > .comment > .comment-details > a > small').attr('title'),
+          text: commentSelector('.panel-body > .comment > .comment-body > .comment.content > p').html()
+        }
+      })
+      .get()
   }
-}
-
-module.exports = {
-  parseSearch,
-  parseTorrent
 }
 
 function getEntry (entry) {

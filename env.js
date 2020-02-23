@@ -1,8 +1,23 @@
-const dotenv = require('dotenv')
-const dotenvParseVariables = require('dotenv-parse-variables')
-const env = dotenv.config({
-  path: './.env'
-})
-process.env = dotenvParseVariables(env.parsed)
+import dotevn from 'dotenv'
+import dotenvParseVariables from 'dotenv-parse-variables'
+import argv from './lib/argv.js'
+if (!process.env) {
+  const env = dotevn.config({
+    path: './.env'
+  })
+  const variables = dotenvParseVariables(env.parsed)
+  process.env = variables
+} else {
+  if (!argv('--heroku')) {
+    const env = dotevn.config({
+      path: './.env'
+    })
+    const variables = dotenvParseVariables(env.parsed)
+    process.env = {
+      ...process.env,
+      ...variables
+    }
+  }
+}
 
-process.env.HOST = process.env.HOST || 'nyaa.si'
+export default process.env
