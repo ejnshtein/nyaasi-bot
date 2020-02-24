@@ -2,7 +2,7 @@ import { Composer } from '@telegraf/core'
 import { bot } from '../../core/bot.js'
 import path from 'path'
 import { buttons, buffer, sendFile } from '../../lib/index.js'
-import { Nyaa } from '../../nyaasi/Nyaa.js'
+import { Nyaa } from '@ejnshtein/nyaasi'
 import env from '../../env.js'
 import torrentView from '../../views/inline-keyboard/torrent-view.js'
 import torrentSearch from '../../views/inline-keyboard/torrent-search.js'
@@ -47,8 +47,8 @@ composer.start(
           case /magnet:[0-9]+/i.test(text): {
             const id = text.split(':').pop()
             try {
-              const torrent = await Nyaa.getTorrent(id)
-              await ctx.reply(`<a href="https://${env.HOST}/">&#8203;</a>${torrent.title}\n<code>${torrent.links.magnet}</code>`, {
+              const torrent = await Nyaa.getTorrentAnonymous(id)
+              await ctx.reply(`<a href="https://${env.HOST}/">&#8203;</a>${torrent.name}\n<code>${torrent.links.magnet}</code>`, {
                 parse_mode: 'HTML',
                 disable_web_page_preview: true,
                 reply_markup: {

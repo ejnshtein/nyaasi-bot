@@ -23,7 +23,6 @@ composer.action([
     await ctx.answerCbQuery('')
     return ctx.editMessageText(text, extra)
   } catch (e) {
-    console.log(e)
     return ctx.answerCbQuery(templates.error(e), true)
   }
 })

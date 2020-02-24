@@ -1,13 +1,13 @@
 
 import { templates, buttons, buffer, getXtFromMagnet, argv } from '../../lib/index.js'
-import collection from '../../core/database/index.js'
-import { stringify } from 'querystring'
-import { Nyaa } from '../../nyaasi/Nyaa.js'
+// import collection from '../../core/database/index.js'
+// import { stringify } from 'querystring'
+import { Nyaa } from '@ejnshtein/nyaasi'
 import env from '../../env.js'
 
 export default async (id, query = '', history = 'p=1:o=0', publicMessage = false, me, allowGetFiles = false, canDownloadTorrent = false) => {
-  const torrent = await Nyaa.getTorrent(id)
-  const DbTorrent = await collection('torrents').findOne({ id: torrent.id }).exec()
+  const torrent = await Nyaa.getTorrentAnonymous(id)
+  // const DbTorrent = await collection('torrents').findOne({ id: torrent.id }).exec()
   const keyboard = publicMessage ? [
     [
       {
@@ -47,31 +47,31 @@ export default async (id, query = '', history = 'p=1:o=0', publicMessage = false
       }
     ]
   ]
-  if (argv('-torrents')) {
-    if (allowGetFiles) {
-      if (canDownloadTorrent) {
-        keyboard.push(
-          [
-            {
-              text: DbTorrent && DbTorrent.status === 'uploaded' ? 'Get Files' : 'Download files to Telegram',
-              callback_data: DbTorrent && DbTorrent.status === 'uploaded'
-                ? `files:${stringify({ i: id, n: 1 })}`
-                : `getfiles=${id}`
-            }
-          ]
-        )
-      } else if (DbTorrent && DbTorrent.status === 'uploaded') {
-        keyboard.push(
-          [
-            {
-              text: 'Get Files',
-              callback_data: `files:${stringify({ i: id, n: 1 })}`
-            }
-          ]
-        )
-      }
-    }
-  }
+  // if (argv('-torrents')) {
+  //   if (allowGetFiles) {
+  //     if (canDownloadTorrent) {
+  //       keyboard.push(
+  //         [
+  //           {
+  //             text: DbTorrent && DbTorrent.status === 'uploaded' ? 'Get Files' : 'Download files to Telegram',
+  //             callback_data: DbTorrent && DbTorrent.status === 'uploaded'
+  //               ? `files:${stringify({ i: id, n: 1 })}`
+  //               : `getfiles=${id}`
+  //           }
+  //         ]
+  //       )
+  //     } else if (DbTorrent && DbTorrent.status === 'uploaded') {
+  //       keyboard.push(
+  //         [
+  //           {
+  //             text: 'Get Files',
+  //             callback_data: `files:${stringify({ i: id, n: 1 })}`
+  //           }
+  //         ]
+  //       )
+  //     }
+  //   }
+  // }
 
   return {
     torrent,

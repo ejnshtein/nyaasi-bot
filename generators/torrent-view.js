@@ -1,11 +1,11 @@
-import { Nyaa } from '../nyaasi/Nyaa.js'
+import { Nyaa } from '@ejnshtein/nyaasi'
 import { templates, buttons, buffer, getXtFromMagnet, argv } from '../lib/index.js'
 import collection from '../core/database/index.js'
 import { stringify } from 'querystring'
 
 export default async (id, query = '', history = 'p=1:o=0', publicMessage = false, me, allowGetFiles = false, canDownloadTorrent = false) => {
-  const torrent = await Nyaa.getTorrent(id)
-  const DbTorrent = await collection('torrents').findOne({ id: torrent.id }).exec()
+  const torrent = await Nyaa.getTorrentAnonymous(id)
+  const DbTorrent = await collection('torrents').findOne({ id: torrent.id })
   const keyboard = publicMessage ? [
     [
       {
@@ -13,7 +13,7 @@ export default async (id, query = '', history = 'p=1:o=0', publicMessage = false
         url: `https://t.me/${me}?start=${buffer.encode(`download:${id}`)}`
       }, {
         text: buttons.torrent.magnet,
-        url: `${process.env.MAGNET_REDIRECT_HOST}/${process.env.MAGNET_REDIRECT_PREFIX}/${getXtFromMagnet(torrent.links.magnet)}`
+        url: `${env.MAGNET_REDIRECT_HOST}/${env.MAGNET_REDIRECT_PREFIX}/${getXtFromMagnet(torrent.links.magnet)}`
       },
       {
         text: 'Full view',

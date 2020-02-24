@@ -1,7 +1,7 @@
 import { Composer } from '@telegraf/core'
 import HtmlEntities from 'html-entities'
 import { buttons, templates, buffer, getXtFromMagnet } from '../lib/index.js'
-import { Nyaa } from '../nyaasi/Nyaa.js'
+import { Nyaa } from '@ejnshtein/nyaasi'
 import { bot } from '../core/bot.js'
 import env from '../env.js'
 
@@ -17,7 +17,7 @@ composer.inlineQuery(
     }
     const torrentId = match[1]
     try {
-      const torrent = await Nyaa.getTorrent(torrentId)
+      const torrent = await Nyaa.getTorrentAnonymous(torrentId)
       await answerInlineQuery(
         [inlineTorrent(torrent, me)],
         queryOptions('Show torrent info', match[0])
@@ -37,13 +37,14 @@ composer.on(
     offset = offset ? Number.parseInt(offset) : 0
     const page = offset ? Math.floor(offset / 75) + 1 : 1
     try {
-      const { files: response, current_page, last_page } = await Nyaa.search(query, { params: { p: page } })
+      const { files: response, current_page, last_page } = await Nyaa.search(query, undefined, { params: { p: page } })
       if (last_page < current_page) {
         return ctx.answerInlineQuery([], queryOptions(undefined, query))
       }
       const results = response
         .slice(offset % 75, offset % 75 + 25)
         .map(torrent => inlineTorrent(torrent, ctx.me))
+
       await ctx.answerInlineQuery(
         results,
         queryOptions(
@@ -63,8 +64,8 @@ function inlineTorrent (torrent, me) {
   return {
     type: 'article',
     id: torrent.id.toString(),
-    title: decode(torrent.title),
-    description: `${torrent.fileSize} · ${templates.date(new Date(Number.parseInt(torrent.timestamp) * 1000))} · ⬆️ ${torrent.seeders} · ⬇️ ${torrent.leechers} · ☑️ ${torrent.completed}`,
+    title: decode(torrent.name),
+    description: `${torrent.file_size} · ${templates.date(new Date(torrent.timestamp))} · ⬆️ ${torrent.stats.seeders} · ⬇️ ${torrent.stats.leechers} · ☑️ ${torrent.stats.downloaded}`,
     input_message_content: {
       message_text: templates.torrent.inlineQuery(torrent),
       disable_web_page_preview: false,
