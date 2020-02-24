@@ -6,7 +6,7 @@ import { Nyaa } from '@ejnshtein/nyaasi'
 import env from '../../env.js'
 
 export default async (id, query = '', history = 'p=1:o=0', publicMessage = false, me, allowGetFiles = false, canDownloadTorrent = false) => {
-  const torrent = await Nyaa.getTorrentAnonymous(id)
+  const torrent = await Nyaa.getTorrentAnonymous(id, undefined, { baseUrl: `https://${env.HOST}` })
   // const DbTorrent = await collection('torrents').findOne({ id: torrent.id }).exec()
   const keyboard = publicMessage ? [
     [

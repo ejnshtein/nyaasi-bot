@@ -17,7 +17,7 @@ composer.inlineQuery(
     }
     const torrentId = match[1]
     try {
-      const torrent = await Nyaa.getTorrentAnonymous(torrentId)
+      const torrent = await Nyaa.getTorrentAnonymous(torrentId, undefined, { baseUrl: `https://${env.HOST}` })
       await answerInlineQuery(
         [inlineTorrent(torrent, me)],
         queryOptions('Show torrent info', match[0])
@@ -37,7 +37,7 @@ composer.on(
     offset = offset ? Number.parseInt(offset) : 0
     const page = offset ? Math.floor(offset / 75) + 1 : 1
     try {
-      const { files: response, current_page, last_page } = await Nyaa.search(query, undefined, { params: { p: page } })
+      const { files: response, current_page, last_page } = await Nyaa.search(query, undefined, { params: { p: page }, baseUrl: `https://${env.HOST}` })
       if (last_page < current_page) {
         return ctx.answerInlineQuery([], queryOptions(undefined, query))
       }

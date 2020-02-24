@@ -10,7 +10,7 @@ composer.action(/^magnet=([0-9]+):p=(\S+):o=(\S+)/i, async ctx => {
   const { value } = loadSearchParams(ctx.callbackQuery.message)
   const searchUrl = `https://${env.HOST}/?p=${ctx.match[2]}${value ? `&q=${value}` : ''}`
   try {
-    const torrent = await Nyaa.getTorrentAnonymous(ctx.match[1])
+    const torrent = await Nyaa.getTorrentAnonymous(ctx.match[1], undefined, { baseUrl: `https://${env.HOST}` })
     let messageText = `${torrent.title}\n`
     messageText += `<code>${torrent.links.magnet}</code><a href="${searchUrl}">&#8203;</a>`
     await ctx.answerCbQuery('')

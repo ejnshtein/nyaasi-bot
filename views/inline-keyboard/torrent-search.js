@@ -9,7 +9,8 @@ export default async (query = '', page = 1, offset = 0) => {
   const { files: searchResult, current_page, last_page } = await Nyaa.search(query, undefined, {
     params: {
       p: page
-    }
+    },
+    baseUrl: `https://${env.HOST}`
   })
   const slicedTorrents = searchResult
     .slice(offset, offset + 10)

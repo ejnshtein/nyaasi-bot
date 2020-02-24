@@ -47,7 +47,7 @@ composer.start(
           case /magnet:[0-9]+/i.test(text): {
             const id = text.split(':').pop()
             try {
-              const torrent = await Nyaa.getTorrentAnonymous(id)
+              const torrent = await Nyaa.getTorrentAnonymous(id, undefined, { baseUrl: `https://${env.HOST}` })
               await ctx.reply(`<a href="https://${env.HOST}/">&#8203;</a>${torrent.title}\n<code>${torrent.links.magnet}</code>`, {
                 parse_mode: 'HTML',
                 disable_web_page_preview: true,
