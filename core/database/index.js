@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 import env from '../../env.js'
 import { User } from './schemas/User.js'
 import { Torrent } from './schemas/Torrent.js'
+import { Subscription } from './schemas/Subscription.js'
 
 const { createConnection } = mongoose
 
@@ -28,6 +29,10 @@ const collections = [
   {
     name: 'torrents',
     schema: Torrent
+  },
+  {
+    name: 'subscriptions',
+    schema: Subscription
   }
 ]
 
