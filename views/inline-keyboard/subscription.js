@@ -1,7 +1,7 @@
 import collection from '../../core/database/index.js'
 import { buttons } from '../../lib/index.js'
 
-export default async function SubscriptionKeyboard (userId, text = '', offset = 0) {
+export default async function SubscriptionKeyboard (chatId, text = '', offset = 0, publicGroup = false) {
   const query = {}
   if (text) {
     query.name = {
@@ -20,7 +20,7 @@ export default async function SubscriptionKeyboard (userId, text = '', offset = 
         {
           $addFields: {
             subscribed: {
-              $in: [userId, '$users']
+              $in: [chatId, '$chats']
             }
           }
         },
@@ -47,7 +47,7 @@ export default async function SubscriptionKeyboard (userId, text = '', offset = 
       return [
         {
           text: `${subscribed ? '-' : '+'} ${name}`,
-          callback_data: `subscribe:id=${_id}&subscribed=${subscribed ? '1' : '0'}&page=${offset}`
+          callback_data: `subscribe:id=${_id}&offset=${offset}`
         }
       ]
     }
@@ -59,6 +59,15 @@ export default async function SubscriptionKeyboard (userId, text = '', offset = 
     //   callback_data: `subscription:offset=${offset}&refresh=1`
     // }
   ]
+
+  // if (publicGroup) {
+  navigation.push(
+    {
+      text: 'Done',
+      callback_data: 'delete'
+    }
+  )
+  // }
 
   if (offset >= 10) {
     navigation.unshift(

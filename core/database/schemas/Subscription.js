@@ -41,7 +41,7 @@ export const Subscription = new Schema(
         submitter: 'any'
       }
     },
-    users: {
+    chats: {
       type: [Number],
       required: true,
       default: []
