@@ -69,10 +69,11 @@ composer.on(
 bot.use(composer.middleware())
 
 function inlineTorrent (torrent, me) {
+  console.log(torrent)
   return {
     type: 'article',
     id: torrent.id.toString(),
-    title: decode(torrent.name),
+    title: decode(torrent.title),
     description: `${torrent.file_size} · ${templates.date(new Date(torrent.timestamp))} · ⬆️ ${torrent.stats.seeders} · ⬇️ ${torrent.stats.leechers} · ☑️ ${torrent.stats.downloaded}`,
     input_message_content: {
       message_text: templates.torrent.inlineQuery(torrent),

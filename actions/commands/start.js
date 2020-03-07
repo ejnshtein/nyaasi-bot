@@ -6,6 +6,7 @@ import { Nyaa } from '@ejnshtein/nyaasi'
 import env from '../../env.js'
 import torrentView from '../../views/inline-keyboard/torrent-view.js'
 import torrentSearch from '../../views/inline-keyboard/torrent-search.js'
+import isBase64 from 'is-base64'
 
 const composer = new Composer()
 
@@ -13,7 +14,8 @@ composer.start(
   Composer.privateChat(
     async ctx => {
       if (ctx.startPayload) {
-        const text = buffer.decode(ctx.startPayload)
+        const text = buffer.decode(ctx.startPayload, isBase64(ctx.startPayload) ? 'base64' : 'hex')
+        console.log(ctx.startPayload, text)
         switch (true) {
           case /download:[0-9]+/i.test(text): {
             const id = text.split(':').pop()
