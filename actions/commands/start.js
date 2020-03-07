@@ -31,16 +31,16 @@ composer.start(
             try {
               const { text, extra } = await torrentView(id, '')
               await ctx.reply(text, extra)
-              return 
+              return
             } catch (e) {}
             break
           }
-          case /query:[\S\s]+/i.test(text): {
-            const [_, query] = text.match(/query:([\S\s])+/i)
+          case /^query$/i.test(text): {
             try {
-              const { text, extra } = await torrentSearch(query)
-              await ctx.reply(text, extra)
-              return 
+              await ctx.reply('Send me command <code>/search &lt;your query&gt;</code>', {
+                parse_mode: 'HTML'
+              })
+              return
             } catch (e) {}
             break
           }
@@ -68,7 +68,7 @@ composer.start(
                   ]
                 }
               })
-              return 
+              return
             } catch (e) {}
             break
           }

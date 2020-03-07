@@ -37,7 +37,15 @@ composer.on(
     offset = offset ? Number.parseInt(offset) : 0
     const page = offset ? Math.floor(offset / 75) + 1 : 1
     try {
-      const { files: response, current_page, last_page } = await Nyaa.search(query, undefined, { params: { p: page }, baseUrl: `https://${env.HOST}` })
+      const { files: response, current_page, last_page } = await Nyaa.search(
+        query,
+        undefined,
+        {
+          params: {
+            p: page
+          },
+          baseUrl: `https://${env.HOST}`
+        })
       if (last_page < current_page) {
         return ctx.answerInlineQuery([], queryOptions(undefined, query))
       }
@@ -105,11 +113,11 @@ function sendError (error) {
   ]
 }
 
-function queryOptions (switchPmText = 'Continue searching...', query = '', offset = '1', cacheTime = 5, isPersonal = false) {
+function queryOptions (switchPmText = 'Search in bot', query = '', offset = '1', cacheTime = 5, isPersonal = false) {
   return Object.assign({},
     switchPmText ? {
       switch_pm_text: switchPmText,
-      switch_pm_parameter: `${buffer.encode(`query:${query.substr(0, 40)}`)}`
+      switch_pm_parameter: `${buffer.encode('query')}`
     } : {},
     offset ? {
       next_offset: offset
