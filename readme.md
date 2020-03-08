@@ -26,13 +26,11 @@ Join [chat](https://t.me/nyaasi_chat) | [channel](https://t.me/nyaasi)
 
 ## Commands
 
-- `/index` - Get access to nyaa.si index page (same as open [nyaa.si](https://nyaa.si/) in browser)
-- `/search` - Same as `/index` but here you can write your query for [nyaa.si](https://nyaa.si), like this: `/search dr.stone`
+- `/index` - Get access to nyaa.si index page (same as open [nyaa.si](https://nyaa.si/) in browser)*
+- `/search` - Same as `/index` but here you can write your query for [nyaa.si](https://nyaa.si), like this: `/search dr.stone`*
 - `/subscribe` - Subscribe to selected topics and users to receive their torrents directly in your chat.
 
-### NOTE
-
-This commands works only in chat with bot
+\* - This commands works only in chat with bot
 
 ## Inline mode
 
