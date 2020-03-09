@@ -15,7 +15,7 @@ composer.start(
     async ctx => {
       if (ctx.startPayload) {
         const text = buffer.decode(ctx.startPayload, isBase64(ctx.startPayload) ? 'base64' : 'hex')
-        console.log(ctx.startPayload, text)
+        // console.log(ctx.startPayload, text)
         switch (true) {
           case /download:[0-9]+/i.test(text): {
             const id = text.split(':').pop()
