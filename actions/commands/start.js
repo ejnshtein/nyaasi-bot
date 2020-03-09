@@ -10,12 +10,19 @@ import isBase64 from 'is-base64'
 
 const composer = new Composer()
 
+function isHex (h) {
+  const test = /([0-9]|[a-f])/gim
+  return test.test(h)
+}
+
 composer.start(
   Composer.privateChat(
     async ctx => {
       if (ctx.startPayload) {
-        const text = buffer.decode(ctx.startPayload, isBase64(ctx.startPayload) ? 'base64' : 'hex')
-        // console.log(ctx.startPayload, text)
+        let text = buffer.decode(ctx.startPayload, isHex(ctx.startPayload) ? 'hex' : 'base64')
+        if (text.length === 0) {
+          text = buffer.decode(ctx.startPayload, isHex(ctx.startPayload) ? 'base64' : 'hex')
+        }
         switch (true) {
           case /download:[0-9]+/i.test(text): {
             const id = text.split(':').pop()
