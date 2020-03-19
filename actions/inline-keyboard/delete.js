@@ -21,7 +21,11 @@ composer.action(
 composer.action(
   'delete',
   Composer.groupChat(
-    Composer.admin(
+    Composer.optional(
+      async ctx => {
+        const { status } = await ctx.getChatMember(ctx.from.id)
+        return ['creator', 'administrator'].includes(status)
+      },
       deleteFn
     )
   )
