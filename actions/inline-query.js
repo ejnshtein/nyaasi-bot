@@ -69,7 +69,6 @@ composer.on(
 bot.use(composer.middleware())
 
 function inlineTorrent (torrent, me) {
-  // console.log(torrent)
   return {
     type: 'article',
     id: torrent.id.toString(),

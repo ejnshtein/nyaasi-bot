@@ -1,19 +1,32 @@
 import collection from './index.js'
 const users = collection('users')
+const chats = collection('chats')
 
-export default async (ctx, next) => {
-  const { updateType, chat, from } = ctx
+export default async function logger ({ updateType, chat, from, state }, next) {
   if (
-    updateType === 'inline_query' ||
     updateType === 'callback_query' ||
     (updateType === 'message' && chat.type === 'private')
   ) {
     const { id, ...userData } = from
-    ctx.state.user = await users.findOneAndUpdate(
+    state.user = await users.findOneAndUpdate(
       { id },
       { $set: userData },
-      { new: true, upsert: true }
+      { new: true }
     )
+    if (!state.user) {
+      state.user = await users.create(from)
+    }
+  }
+  if (['supergroup', 'group'].includes(chat.type)) {
+    const { id, ...chatData } = chat
+    state.chat = await chats.findOneAndUpdate(
+      { id },
+      { $set: chatData },
+      { new: true }
+    )
+    if (!state.chat) {
+      state.chat = await chats.create(chat)
+    }
   }
   next()
 }

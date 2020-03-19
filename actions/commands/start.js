@@ -5,8 +5,7 @@ import { buttons, buffer, sendFile } from '../../lib/index.js'
 import { Nyaa } from '@ejnshtein/nyaasi'
 import env from '../../env.js'
 import torrentView from '../../views/inline-keyboard/torrent-view.js'
-import torrentSearch from '../../views/inline-keyboard/torrent-search.js'
-import isBase64 from 'is-base64'
+// import torrentSearch from '../../views/inline-keyboard/torrent-search.js'
 
 const composer = new Composer()
 

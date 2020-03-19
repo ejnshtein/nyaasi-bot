@@ -1,10 +1,11 @@
 import { Composer } from '@telegraf/core'
 import { bot } from '../../core/bot.js'
+import env from '../../env.js'
 
 const composer = new Composer()
 
-const text = `I'm <a href="https://${process.env.HOST}">${process.env.HOST}</a> website bot.
-For now, I can search for torrents on <a href="https://${process.env.HOST}">${process.env.HOST}</a> (＾◡＾)っ.
+const text = `I'm <a href="https://${env.HOST}">${env.HOST}</a> website bot.
+For now, I can search for torrents on <a href="https://${env.HOST}">${env.HOST}</a> (＾◡＾)っ.
 More features will arrive soon! ( ͡~ ͜ʖ ͡°)
 
 I'm still in beta, so please be patient! ( ﾉ ﾟｰﾟ)ﾉ
