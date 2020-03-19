@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import env from '../../env.js'
 import { User } from './schemas/User.js'
+import { Chat } from './schemas/Chat.js'
 import { Torrent } from './schemas/Torrent.js'
 import { Subscription } from './schemas/Subscription.js'
 
@@ -25,6 +26,10 @@ const collections = [
   {
     name: 'users',
     schema: User
+  },
+  {
+    name: 'chats',
+    schema: Chat
   },
   {
     name: 'torrents',
