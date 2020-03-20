@@ -11,22 +11,16 @@ export default async function logger ({ updateType, chat, from, state }, next) {
     state.user = await users.findOneAndUpdate(
       { id },
       { $set: userData },
-      { new: true }
+      { new: true, upsert: true }
     )
-    if (!state.user) {
-      state.user = await users.create(from)
-    }
   }
   if (chat.type && ['supergroup', 'group'].includes(chat.type)) {
     const { id, ...chatData } = chat
     state.chat = await chats.findOneAndUpdate(
       { id },
       { $set: chatData },
-      { new: true }
+      { new: true, upsert: true }
     )
-    if (!state.chat) {
-      state.chat = await chats.create(chat)
-    }
   }
   next()
 }
