@@ -14,7 +14,7 @@ export default async function logger ({ updateType, chat, from, state }, next) {
       { new: true, upsert: true }
     )
   }
-  if (chat.type && ['supergroup', 'group'].includes(chat.type)) {
+  if (chat && chat.type && ['supergroup', 'group'].includes(chat.type)) {
     const { id, ...chatData } = chat
     state.chat = await chats.findOneAndUpdate(
       { id },
