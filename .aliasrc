@@ -1,0 +1,4 @@
+core=docker-compose -f docker-compose.yml -f docker-compose.core.yml
+dc=docker-compose -f docker-compose.yml
+inapp=docker-compose -f docker-compose.yml exec app
+applogs=docker-compose logs -f --tail=100 app

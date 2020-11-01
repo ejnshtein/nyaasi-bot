@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "allowJs": true,
+    "module": "CommonJS",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": false,
+    "esModuleInterop": true,
+    "target": "ES5",
+    "sourceMap": true,
+    "moduleResolution": "Node",
+    "outDir": "dist",
+    "baseUrl": ".",
+    "skipLibCheck": true,
+    "paths": {
+      "*": ["node_modules/*"],
+      "@nyaasi/*": ["src/nyaasi/*"],
+      "@lib/*": ["src/lib/*"],
+      "@actions/*": ["src/actions/*"],
+      "@type/*": ["src/types/*"],
+      "@src/*": ["src/*"],
+      "@view/*": ["src/view/*"],
+      "@models/*": ["src/models/*"],
+      "@template/*": ["src/template/*"]
+    }
+  },
+  "include": [
+    "src/**/*"
+  ]
+}

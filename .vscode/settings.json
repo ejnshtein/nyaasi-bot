@@ -1,0 +1,20 @@
+{
+    "cSpell.words": [
+        "airgram",
+        "ejnshtein",
+        "hentai",
+        "mangadex",
+        "middlewares",
+        "nyaa",
+        "nyaasi",
+        "tdlib",
+        "telegraf",
+        "typegoose",
+        "virtuals",
+        "ytdl"
+    ],
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    "editor.tabSize": 2
+}

@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  app:
+    environment:
+      - NODE_ENV=development
+    ports:
+      - 9222:9222
+    volumes:
+      - ./dist:/usr/src/app/dist
+      - ./package.json:/usr/src/app/package.json
+      - ./yarn.lock:/usr/src/app/yarn.lock
+    command: yarn watch-js

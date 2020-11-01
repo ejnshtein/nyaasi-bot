@@ -1,0 +1,27 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label":"Compine TS",
+      "type": "typescript",
+      "tsconfig": "tsconfig.json",
+      "problemMatcher": ["$tsc"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "tsc-watch",
+      "command": "yarn",
+      "args": [ "watch-ts" ],
+      "type":"shell",
+      "isBackground": true,
+      "group":"build",
+      "problemMatcher": "$tsc-watch",
+      "presentation":{
+        "reveal": "always",
+      }
+    }
+  ]
+}

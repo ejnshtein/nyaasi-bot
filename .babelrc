@@ -1,0 +1,14 @@
+{
+	"presets": [
+			"@babel/typescript"
+	],
+	"plugins": [
+    [
+      "babel-plugin-add-import-extension",
+      {
+        "extension": "js",
+        "replace": true
+      }
+    ]
+	]
+}
