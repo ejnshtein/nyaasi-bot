@@ -3,21 +3,18 @@
     "node": true
   },
   "extends": [
-    "standard",
+    "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
-    "prettier/@typescript-eslint",
+    "standard",
     "plugin:prettier/recommended"
   ],
   "parser": "@typescript-eslint/parser",
-  "plugins": [],
   "parserOptions": {
-    "ecmaVersion": 2020,
+    "ecmaVersion": 2022,
     "sourceType": "module"
   },
   "rules": {
     "camelcase": "warn",
-    "@typescript-eslint/no-unused-vars": "warn",
-    "no-prototype-builtins": "off",
-    "@typescript-eslint/no-var-requires": "warn"
+    "@typescript-eslint/no-unused-vars": "warn"
   }
 }

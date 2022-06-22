@@ -1,4 +1,4 @@
-import { InlineQueryResultArticle } from 'telegraf/typings/telegram-types'
+import { InlineQueryResultArticle } from 'grammy/out/platform.node'
 
 export const sendError = (error: Error): InlineQueryResultArticle => ({
   type: 'article',

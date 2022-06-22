@@ -2,7 +2,7 @@ import collection from './index.js'
 const users = collection('users')
 const chats = collection('chats')
 
-export default async function logger ({ updateType, chat, from, state }, next) {
+export default async function logger({ updateType, chat, from, state }, next) {
   if (
     updateType === 'callback_query' ||
     (updateType === 'message' && chat.type === 'private')

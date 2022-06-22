@@ -2,28 +2,32 @@
   "compilerOptions": {
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "allowJs": true,
-    "module": "CommonJS",
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": false,
+    /* Visit https://aka.ms/tsconfig to read more about this file */
+    "target": "ES2022",
+    "module": "commonjs",
     "esModuleInterop": true,
-    "target": "ES5",
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
     "sourceMap": true,
     "moduleResolution": "Node",
-    "outDir": "dist",
+    "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
-    "skipLibCheck": true,
+    "outDir": "dist",
     "paths": {
       "*": ["node_modules/*"],
-      "@nyaasi/*": ["src/nyaasi/*"],
-      "@lib/*": ["src/lib/*"],
-      "@actions/*": ["src/actions/*"],
-      "@type/*": ["src/types/*"],
-      "@src/*": ["src/*"],
-      "@view/*": ["src/view/*"],
-      "@models/*": ["src/models/*"],
-      "@template/*": ["src/template/*"]
-    }
+      "nyaasi/*": ["src/nyaasi/*"],
+      "lib/*": ["src/lib/*"],
+      "actions/*": ["src/actions/*"],
+      "type/*": ["src/types/*"],
+      "src/*": ["src/*"],
+      "view/*": ["src/view/*"],
+      "models/*": ["src/models/*"],
+      "template/*": ["src/template/*"]
+    },
+    "types": [
+      "./types"
+    ]
   },
   "include": [
     "src/**/*"

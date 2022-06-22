@@ -1,10 +1,7 @@
 FROM alfg/ffmpeg:latest as ffmpeg
-FROM ejnshtein/node-tdlib:14-1.6.0-alpine-3.12.0-1.0
+FROM ejnshtein/node-tdlib:latest
 
-WORKDIR /usr/src/app/
-
-ADD . .
-
+WORKDIR /app/
 # set tdlib
 RUN cp /usr/local/lib/libtdjson.so ./libtdjson.so
 
@@ -28,12 +25,19 @@ RUN apk add --update \
 # copy ffmpeg
 COPY --from=ffmpeg /opt/ffmpeg /opt/ffmpeg
 COPY --from=ffmpeg /usr/lib/libfdk-aac.so.2 /usr/lib/libfdk-aac.so.2
-COPY --from=ffmpeg /usr/lib/librav1e.so.0 /usr/lib/librav1e.so.0
+COPY --from=ffmpeg /usr/lib/librav1e.so /usr/lib/librav1e.so
+COPY --from=ffmpeg /usr/lib/libx265.so /usr/lib/
+COPY --from=ffmpeg /usr/lib/libx265.so.* /usr/lib/
 
 ENV PATH=/opt/ffmpeg/bin:$PATH
 
-RUN yarn install --network-timeout 100000
+ADD ./package.json ./package-lock.json ./tsconfig.json ./
 
-RUN yarn build-ts
+RUN npm ci
 
-# CMD [ "yarn", "start" ]
+ADD ./src ./src
+ADD ./types ./types
+
+RUN npm run build-ts
+
+CMD [ "npm", "start" ]

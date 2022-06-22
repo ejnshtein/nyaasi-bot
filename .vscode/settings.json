@@ -1,20 +1,21 @@
 {
     "cSpell.words": [
-        "airgram",
-        "ejnshtein",
-        "hentai",
-        "mangadex",
-        "middlewares",
-        "nyaa",
-        "nyaasi",
-        "tdlib",
-        "telegraf",
-        "typegoose",
-        "virtuals",
-        "ytdl"
+        "Swipeable",
+        "Youtube",
+        "dsgstng",
+        "mixins",
+        "notistack",
+        "youtu"
     ],
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": true
     },
-    "editor.tabSize": 2
+    "editor.tabSize": 2,
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/bower_components": true,
+        "**/*.code-search": true,
+        "**/build": true
+    },
+    "typescript.tsdk": "node_modules/typescript/lib"
 }

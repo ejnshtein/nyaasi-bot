@@ -8,18 +8,17 @@
       "type": "node",
       "request": "attach",
       "name": "Attach to Docker",
-      "preLaunchTask": "tsc-watch",
-      "protocol":"auto",
-      "port": 9222,
+      "port": 9229,
       "restart": true,
-      "timeout": 2000,
-      "localRoot": "${workspaceFolder}/dist",
-      "remoteRoot": "/usr/src/app/dist",
+      "sourceMaps": true,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "/app",
       "outFiles": [
-        "${workspaceFolder}/dist/**/*.js"
+        "${workspaceFolder}/**/*.js",
+        "!**/node_modules/**"
       ],
       "skipFiles": [
-        "<node_internals>/**/*.js",
+        "<node_internals>/**"
       ]
     }
   ]

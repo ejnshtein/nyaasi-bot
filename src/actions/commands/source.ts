@@ -1,11 +1,13 @@
-import { Composer } from '@telegraf/core'
-import { bot } from '../../core/bot.js'
+import { Composer } from 'grammy'
+import { bot } from 'src/bot'
+import { onlyPrivate } from 'src/middlewares/only-private'
 
 const composer = new Composer()
 
-composer.command('source',
-  Composer.privateChat(
-    Composer.reply('My source code at <a href="https://github.com/ejnshtein/nyaasi-bot">Github</a>', {
+composer.filter(onlyPrivate).command('source', (ctx) =>
+  ctx.reply(
+    'My source code at <a href="https://github.com/ejnshtein/nyaasi-bot">Github</a>',
+    {
       parse_mode: 'HTML',
       disable_web_page_preview: true,
       reply_markup: {
@@ -18,7 +20,7 @@ composer.command('source',
           ]
         ]
       }
-    })
+    }
   )
 )
 

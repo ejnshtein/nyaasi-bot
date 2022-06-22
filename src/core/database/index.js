@@ -18,7 +18,7 @@ connection.then(() => {
   console.log('DB connected')
 })
 
-connection.catch(err => {
+connection.catch((err) => {
   console.log('mongodb.connectionError', err)
 })
 
@@ -41,9 +41,9 @@ const collections = [
   }
 ]
 
-collections.forEach(collection => {
+collections.forEach((collection) => {
   if (collection.pre) {
-    Object.keys(collection.pre).forEach(preKey => {
+    Object.keys(collection.pre).forEach((preKey) => {
       collection.schema.pre(preKey, collection.pre[preKey])
     })
   }
@@ -51,15 +51,15 @@ collections.forEach(collection => {
     collection.schema.method(collection.method)
   }
   if (collection.virtual) {
-    Object.keys(collection.virtual).forEach(virtual => {
+    Object.keys(collection.virtual).forEach((virtual) => {
       collection.schema.virtual(virtual, collection.virtual[virtual])
     })
   }
   connection.model(collection.name, collection.schema)
 })
 
-export default collectionName => {
-  const collection = collections.find(el => el.name === collectionName)
+export default (collectionName) => {
+  const collection = collections.find((el) => el.name === collectionName)
   if (collection) {
     return connection.model(collection.name, collection.schema)
   } else {

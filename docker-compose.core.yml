@@ -4,10 +4,17 @@ services:
   app:
     environment:
       - NODE_ENV=development
+      - NODE_OPTIONS=--enable-source-maps
     ports:
-      - 9222:9222
+      - 9229:9229
     volumes:
-      - ./dist:/usr/src/app/dist
-      - ./package.json:/usr/src/app/package.json
-      - ./yarn.lock:/usr/src/app/yarn.lock
-    command: yarn watch-js
+      - ./src:/app/src
+      - ./dist:/app/dist
+      - ./types:/app/types
+      - ./package.json:/app/package.json
+      - ./package-lock.json:/app/package-lock.json
+      - ./nodemon.json:/app/nodemon.json
+      - ./.eslintrc:/app/.eslintrc
+      - ./.prettierrc:/app/.prettierrc
+      - ./tsconfig.json:/app/tsconfig.json
+    command: npm run watch-ts

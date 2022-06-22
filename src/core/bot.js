@@ -5,10 +5,9 @@ import collection from './database/index.js'
 
 export const bot = new Telegraf(env.BOT_TOKEN)
 
-bot.telegram.getMe()
-  .then(({ username }) => {
-    bot.options.username = username
-  })
+bot.telegram.getMe().then(({ username }) => {
+  bot.options.username = username
+})
 
 bot.context.db = collection
 
